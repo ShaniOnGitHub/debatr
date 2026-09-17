@@ -1,0 +1,74 @@
+[
+  {
+    "id": "90e4d88c-e28e-4479-b9dd-3aeda1641199",
+    "timestamp": "2026-09-17T14:09:49.555645+00:00",
+    "topic": "Should AI replace human programmers?",
+    "rounds": 1,
+    "user_vote": "B",
+    "judge_winner": "A",
+    "agreed": false,
+    "scores": {
+      "A": {
+        "logical_consistency": 9,
+        "evidence_use": 8,
+        "rebuttal_engagement": 8,
+        "total": 25
+      },
+      "B": {
+        "logical_consistency": 8,
+        "evidence_use": 7,
+        "rebuttal_engagement": 7,
+        "total": 22
+      }
+    },
+    "reasoning": "Debater A demonstrated more compelling systemic leverage."
+  },
+  {
+    "id": "d4748790-b908-447f-8541-f3f62e7e1023",
+    "timestamp": "2026-09-17T14:10:58.362926+00:00",
+    "topic": "Cats are better pets than dogs",
+    "rounds": 1,
+    "user_vote": "A",
+    "judge_winner": "B",
+    "agreed": false,
+    "scores": {
+      "A": {
+        "logical_consistency": 5,
+        "evidence_use": 4,
+        "rebuttal_engagement": 5,
+        "total": 14
+      },
+      "B": {
+        "logical_consistency": 5,
+        "evidence_use": 4,
+        "rebuttal_engagement": 7,
+        "total": 16
+      }
+    },
+    "reasoning": "B wins narrowly through stronger direct engagement. A presents a coherent convenience-based case, grounded in litter-box use, self-grooming, and the absence of required walks. However, A treats convenience as universally decisive and overstates claims about veterinary costs, boarding, noise, and independence. B directly challenges cleanliness, quietness, cost, and the interpretation of independence, while introducing competing benefits such as trainability and outdoor activity. These responses undermine A's categorical superiority claim, although they do not establish that dogs are universally better. Both rely on unsupported generalizations: B's portrayal of cats as indifferent and dogs as uniformly loyal is particularly weak, and neither supplies comparative evidence. A's neutral engagement score reflects having no opportunity to rebut; B's advantage comes from actually addressing several central premises rather than merely presenting an alternative preference."
+  },
+  {
+    "id": "375d581b-6e90-4e42-9861-883d51c15785",
+    "timestamp": "2026-09-17T14:23:53.900305+00:00",
+    "topic": "AI is dangerous",
+    "rounds": 3,
+    "user_vote": "B",
+    "judge_winner": "A",
+    "agreed": false,
+    "scores": {
+      "A": {
+        "logical_consistency": 7,
+        "evidence_use": 5,
+        "rebuttal_engagement": 8,
+        "total": 20
+      },
+      "B": {
+        "logical_consistency": 5,
+        "evidence_use": 6,
+        "rebuttal_engagement": 6,
+        "total": 17
+      }
+    },
+    "reasoning": "A wins by more consistently addressing the actual motion: whether AI is dangerous, not whether it should be prohibited or whether its risks can ever be mitigated. A explains plausible mechanisms of danger through speed, scale, opaque decision-making, and the difficulty of recalling released models. B's attribution of harm to human choices does not establish that AI itself introduces no additional danger, and the existence of safeguards does not establish their adequacy. B repeatedly portrays A as advocating abandonment or prohibition despite A explicitly rejecting that position. A directly challenges the applicability of kill switches and centralized-control analogies to widely distributed models. However, A weakens the case with unsupported absolutes about defenders needing perfection, bias being unappealable, and systems being uncontrollable. B effectively challenges the perfection requirement through resilience and provides more concrete institutional references, including the EU AI Act and NIST frameworks, earning a slight evidence advantage. Neither side supplies substantial empirical evidence. Ultimately, B demonstrates that mitigation is possible but does not sufficiently rebut A's narrower claim that deployment creates meaningful dangers."
+  }
+]
