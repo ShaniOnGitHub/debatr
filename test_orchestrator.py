@@ -90,6 +90,27 @@ def test_live_llm_debate():
     print("=== TEST 2 PASSED ===\n")
 
 
+def test_history_stats_structure():
+    print("=== TEST 3: History Statistics Structure ===")
+    stats = get_history_stats()
+    expected_keys = {
+        "total_debates",
+        "agreement_count",
+        "agreement_rate",
+        "user_wins_a",
+        "user_wins_b",
+        "judge_wins_a",
+        "judge_wins_b",
+    }
+    assert expected_keys.issubset(stats.keys()), f"Missing keys in stats: {expected_keys - stats.keys()}"
+    assert isinstance(stats["total_debates"], int), "total_debates should be an integer"
+    assert isinstance(stats["agreement_rate"], (int, float)), "agreement_rate should be a number"
+    print("✓ Confirmed: History stats returned valid keys and correct types.")
+    print("=== TEST 3 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
+    test_history_stats_structure()
     test_live_llm_debate()
+
