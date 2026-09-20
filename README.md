@@ -47,12 +47,22 @@ git clone https://github.com/ShaniOnGitHub/debatr.git
 cd debatr
 ```
 
-### 2. Install dependencies
+### 2. (Optional) Create an isolated environment
+An isolated environment keeps project packages separate from other programs on your computer.
+```bash
+python -m venv .venv
+# Windows:
+.venv\Scripts\activate
+# macOS/Linux:
+source .venv/bin/activate
+```
+
+### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Set up environment variables
+### 4. Set up environment variables
 Copy `.env.example` to `.env` and provide your OpenRouter API key:
 ```bash
 cp .env.example .env
@@ -63,7 +73,7 @@ OPENROUTER_API_KEY=your_openrouter_api_key_here
 OPENROUTER_MODEL=stealth/union-alpha
 ```
 
-### 4. Launch the application
+### 5. Launch the application
 ```bash
 streamlit run app.py
 ```
