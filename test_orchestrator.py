@@ -134,5 +134,11 @@ def test_history_stats_structure():
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
-    test_live_llm_debate()
+    
+    run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
+    if run_live:
+        test_live_llm_debate()
+    else:
+        print("ℹ️ Skipping live LLM integration test. Run with 'python test_orchestrator.py --live' to run live tests.")
+
 
