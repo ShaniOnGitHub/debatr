@@ -476,7 +476,19 @@ else:
                 )
                 
             st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("⚔️ Start Another Debate", type="secondary", use_container_width=True):
-                st.session_state.orchestrator = None
-                st.session_state.debate_status = "idle"
-                st.rerun()
+            col_act1, col_act2 = st.columns(2)
+            with col_act1:
+                transcript_md = orch.export_transcript_markdown()
+                st.download_button(
+                    label="📥 Download Debate Transcript (.md)",
+                    data=transcript_md,
+                    file_name=f"debate_{orch.id[:8]}.md",
+                    mime="text/markdown",
+                    use_container_width=True
+                )
+            with col_act2:
+                if st.button("⚔️ Start Another Debate", type="primary", use_container_width=True):
+                    st.session_state.orchestrator = None
+                    st.session_state.debate_status = "idle"
+                    st.rerun()
+
