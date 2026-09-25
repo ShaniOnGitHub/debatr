@@ -455,3 +455,18 @@ def get_debate_by_id(debate_id: str) -> Optional[Dict[str, Any]]:
         
     return None
 
+
+def clear_history() -> bool:
+    """Safely resets the debates history file to an empty record list."""
+    history_file = get_history_file()
+    try:
+        dir_name = os.path.dirname(os.path.abspath(history_file))
+        if dir_name:
+            os.makedirs(dir_name, exist_ok=True)
+        with open(history_file, "w", encoding="utf-8") as f:
+            json.dump([], f, indent=2)
+        return True
+    except Exception:
+        return False
+
+
