@@ -1,5 +1,6 @@
 import sys
 import os
+import tempfile
 from orchestrator import DebateOrchestrator, get_history_stats
 
 if sys.platform == "win32":
@@ -8,42 +9,63 @@ if sys.platform == "win32":
 
 def test_mock_vote_reveal_ordering():
     print("\n=== TEST 1: Mock Vote/Reveal Ordering & Privacy ===")
-    orch = DebateOrchestrator(topic="Should AI replace human programmers?", total_rounds=1)
     
-    # 1. Simulate turns
-    orch.transcript.append({"speaker": "A", "round": 1, "text": "AI increases productivity dramatically."})
-    orch.transcript.append({"speaker": "B", "round": 1, "text": "AI lacks true contextual intuition and critical problem solving."})
+    # Use isolated temporary history file for testing
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_history_path = tf.name
     
-    # 2. Simulate silent judge evaluation
-    mock_verdict = {
-        "winner": "A",
-        "scores": {
-            "A": {"logical_consistency": 9, "evidence_use": 8, "rebuttal_engagement": 8, "total": 25},
-            "B": {"logical_consistency": 8, "evidence_use": 7, "rebuttal_engagement": 7, "total": 22}
-        },
-        "reasoning": "Debater A demonstrated more compelling systemic leverage."
-    }
-    orch._judge_verdict = mock_verdict
+    original_history_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_history_path
     
-    # Assert judge verdict is NOT yet revealed
-    assert orch.revealed_verdict is None, "CRITICAL: Verdict leaked before user vote!"
-    assert orch.user_vote is None, "User vote should be None before voting"
-    print("✓ Confirmed: Judge verdict is silent and hidden prior to user voting.")
+    try:
+        orch = DebateOrchestrator(topic="Should AI replace human programmers?", total_rounds=1)
+
     
-    # 3. User votes for B
-    revealed = orch.submit_user_vote("B")
-    
-    # Assertions after voting
-    assert orch.revealed_verdict is not None, "Verdict should now be revealed"
-    assert revealed["winner"] == "A"
-    assert revealed["user_vote"] == "B"
-    assert revealed["agreed_with_ai"] is False, "User vote B does not match Judge winner A"
-    print("✓ Confirmed: After user voted 'B', verdict revealed: User agreed = False.")
-    
-    # 4. Check stats persistence
-    stats = get_history_stats()
-    print(f"✓ Confirmed: Cumulative stats recorded. Total debates: {stats['total_debates']}, Agreement rate: {stats['agreement_rate']}%")
-    print("=== TEST 1 PASSED ===\n")
+        # 1. Simulate turns
+        orch.transcript.append({"speaker": "A", "round": 1, "text": "AI increases productivity dramatically."})
+        orch.transcript.append({"speaker": "B", "round": 1, "text": "AI lacks true contextual intuition and critical problem solving."})
+        
+        # 2. Simulate silent judge evaluation
+        mock_verdict = {
+            "winner": "A",
+            "scores": {
+                "A": {"logical_consistency": 9, "evidence_use": 8, "rebuttal_engagement": 8, "total": 25},
+                "B": {"logical_consistency": 8, "evidence_use": 7, "rebuttal_engagement": 7, "total": 22}
+            },
+            "reasoning": "Debater A demonstrated more compelling systemic leverage."
+        }
+        orch._judge_verdict = mock_verdict
+        
+        # Assert judge verdict is NOT yet revealed
+        assert orch.revealed_verdict is None, "CRITICAL: Verdict leaked before user vote!"
+        assert orch.user_vote is None, "User vote should be None before voting"
+        print("✓ Confirmed: Judge verdict is silent and hidden prior to user voting.")
+        
+        # 3. User votes for B
+        revealed = orch.submit_user_vote("B")
+        
+        # Assertions after voting
+        assert orch.revealed_verdict is not None, "Verdict should now be revealed"
+        assert revealed["winner"] == "A"
+        assert revealed["user_vote"] == "B"
+        assert revealed["agreed_with_ai"] is False, "User vote B does not match Judge winner A"
+        print("✓ Confirmed: After user voted 'B', verdict revealed: User agreed = False.")
+        
+        # 4. Check stats persistence
+        stats = get_history_stats()
+        print(f"✓ Confirmed: Cumulative stats recorded. Total debates: {stats['total_debates']}, Agreement rate: {stats['agreement_rate']}%")
+        print("=== TEST 1 PASSED ===\n")
+    finally:
+        if original_history_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = original_history_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_history_path):
+            try:
+                os.remove(temp_history_path)
+            except Exception:
+                pass
+
 
 
 def test_live_llm_debate():
