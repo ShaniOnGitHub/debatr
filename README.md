@@ -71,6 +71,8 @@ Inside `.env`:
 ```env
 OPENROUTER_API_KEY=your_openrouter_api_key_here
 OPENROUTER_MODEL=stealth/union-alpha
+# Optional custom path for history file:
+# DEBATR_HISTORY_FILE=path/to/my_history.json
 ```
 
 ### 5. Launch the application
@@ -83,14 +85,29 @@ Open your browser at `http://localhost:8501`.
 
 ## 🧪 Running Tests
 
-Debatr includes an automated test suite that verifies turn execution, verdict privacy, and vote reveal mechanics without needing a browser:
+Debatr includes an automated test suite verifying turn execution, verdict privacy, input validation, statistical calculations, and markdown exports:
 
-```bash
-python test_orchestrator.py
-```
+- **Run standard unit tests (fast, offline, no API key needed):**
+  ```bash
+  python test_orchestrator.py
+  ```
+
+- **Run live integration tests with real OpenRouter models:**
+  ```bash
+  python test_orchestrator.py --live
+  ```
+
+Continuous integration runs automatically on every push and pull request via GitHub Actions.
+
+---
+
+## 🤝 Contributing
+
+Contributions are warmly welcomed! Please read our [Contributing Guidelines](CONTRIBUTING.md) to learn how to get started.
 
 ---
 
 ## 📄 License
 
 MIT License. Built for experimenters, debaters, and AI enthusiasts.
+
