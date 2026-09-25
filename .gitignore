@@ -8,7 +8,17 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Test & coverage artifacts
 .pytest_cache/
+.coverage
+htmlcov/
+*.cover
 
 # Node dependencies
 node_modules/
@@ -19,6 +29,13 @@ yarn-error.log*
 # Streamlit
 .streamlit/secrets.toml
 
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
 # OS Files
 .DS_Store
 Thumbs.db
+
