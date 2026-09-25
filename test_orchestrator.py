@@ -181,17 +181,50 @@ def test_debate_input_validation():
     print("=== TEST 5 PASSED ===\n")
 
 
+def test_parse_judge_json_edge_cases():
+    print("=== TEST 6: Judge Response Parsing Edge Cases ===")
+    orch = DebateOrchestrator(topic="Remote work increases overall company productivity", total_rounds=1)
+    
+    # 1. Clean JSON
+    clean_json = '{"winner": "B", "scores": {"A": {"total": 20}, "B": {"total": 25}}, "reasoning": "Clearer points."}'
+    res1 = orch._parse_judge_json(clean_json)
+    assert res1["winner"] == "B"
+    assert res1["reasoning"] == "Clearer points."
+    
+    # 2. Markdown fenced code block
+    fenced_json = '```json\n{"winner": "A", "scores": {}, "reasoning": "Strong evidence."}\n```'
+    res2 = orch._parse_judge_json(fenced_json)
+    assert res2["winner"] == "A"
+    
+    # 3. JSON embedded within extra commentary
+    surrounded_json = 'Here is the verdict:\n{"winner": "B", "reasoning": "B rebutted effectively."}\nHope this helps!'
+    res3 = orch._parse_judge_json(surrounded_json)
+    assert res3["winner"] == "B"
+    
+    # 4. Corrupted / unparseable JSON falls back to safe default
+    corrupted = "I cannot determine a winner as this is invalid output"
+    res4 = orch._parse_judge_json(corrupted)
+    assert "winner" in res4
+    assert "scores" in res4
+    assert "reasoning" in res4
+    
+    print("✓ Confirmed: Judge JSON parser cleanly handles markdown fences, extra text, and corrupt responses.")
+    print("=== TEST 6 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
     test_transcript_formatting()
     test_debate_input_validation()
+    test_parse_judge_json_edge_cases()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
         test_live_llm_debate()
     else:
         print("ℹ️ Skipping live LLM integration test. Run with 'python test_orchestrator.py --live' to run live tests.")
+
 
 
 
