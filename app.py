@@ -223,6 +223,8 @@ if "rounds" not in st.session_state:
 
 # Fetch Stats
 stats = get_history_stats()
+agreement_display = f"{stats['agreement_rate']}%" if stats['total_debates'] > 0 else "N/A"
+matched_display = f"{stats['agreement_count']} / {stats['total_debates']}" if stats['total_debates'] > 0 else "0 yet"
 
 # Header & Running Stats Banner
 st.markdown(f"""
@@ -235,11 +237,11 @@ st.markdown(f"""
             <div class="stat-label">Total Debates</div>
         </div>
         <div class="stat-card">
-            <div class="stat-value">{stats['agreement_rate']}%</div>
+            <div class="stat-value">{agreement_display}</div>
             <div class="stat-label">AI-User Agreement</div>
         </div>
         <div class="stat-card">
-            <div class="stat-value">{stats['agreement_count']} / {stats['total_debates']}</div>
+            <div class="stat-value">{matched_display}</div>
             <div class="stat-label">Matched Verdicts</div>
         </div>
         <div class="stat-card">
@@ -249,6 +251,7 @@ st.markdown(f"""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
 
 # Helper to render styled chat bubble
 def render_bubble(speaker: str, round_num: int, text: str):
