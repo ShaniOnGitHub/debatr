@@ -1,7 +1,7 @@
 import sys
 import os
 import tempfile
-from orchestrator import DebateOrchestrator, get_history_stats
+from orchestrator import DebateOrchestrator, get_history_stats, get_debate_by_id
 
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -212,18 +212,62 @@ def test_parse_judge_json_edge_cases():
     print("=== TEST 6 PASSED ===\n")
 
 
+def test_get_debate_by_id():
+    print("=== TEST 7: Get Debate By ID ===")
+    import json
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+    
+    try:
+        # Non-existent file / empty
+        assert get_debate_by_id("non-existent-id") is None
+        assert get_debate_by_id("") is None
+        
+        sample_records = [
+            {"id": "test-uuid-1", "topic": "Topic 1", "winner": "A"},
+            {"id": "test-uuid-2", "topic": "Topic 2", "winner": "B"}
+        ]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(sample_records, f)
+            
+        found = get_debate_by_id("test-uuid-2")
+        assert found is not None
+        assert found["topic"] == "Topic 2"
+        assert found["winner"] == "B"
+        
+        not_found = get_debate_by_id("unknown-id")
+        assert not_found is None
+        print("✓ Confirmed: get_debate_by_id successfully finds matching records and handles missing IDs.")
+        print("=== TEST 7 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
     test_transcript_formatting()
     test_debate_input_validation()
     test_parse_judge_json_edge_cases()
+    test_get_debate_by_id()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
         test_live_llm_debate()
     else:
         print("ℹ️ Skipping live LLM integration test. Run with 'python test_orchestrator.py --live' to run live tests.")
+
 
 
 
