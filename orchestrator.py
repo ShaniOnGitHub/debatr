@@ -349,6 +349,38 @@ class DebateOrchestrator:
         with open(history_file, "w", encoding="utf-8") as f:
             json.dump(history, f, indent=2)
 
+    def export_transcript_markdown(self) -> str:
+        """
+        Exports the entire debate transcript as a formatted Markdown document,
+        including topic, speeches per round, and judge verdict if revealed.
+        """
+        lines = [
+            f"# Debate: {self.topic}",
+            f"- **Debate ID**: `{self.id}`",
+            f"- **Total Rounds**: {self.total_rounds}",
+            "",
+            "## Speeches",
+            ""
+        ]
+        if not self.transcript:
+            lines.append("_No arguments recorded yet._\n")
+        else:
+            for entry in self.transcript:
+                speaker_label = "Debater A (FOR)" if entry["speaker"] == "A" else "Debater B (AGAINST)"
+                lines.append(f"### Round {entry['round']} — {speaker_label}")
+                lines.append(f"{entry['text']}\n")
+                
+        if self.revealed_verdict:
+            lines.append("## Official Verdict")
+            lines.append(f"- **User Vote**: Debater {self.revealed_verdict.get('user_vote')}")
+            lines.append(f"- **Judge Winner**: Debater {self.revealed_verdict.get('winner')}")
+            lines.append(f"- **User Agreed With Judge**: {'Yes' if self.revealed_verdict.get('agreed_with_ai') else 'No'}")
+            lines.append("\n### Judge Reasoning")
+            lines.append(f"{self.revealed_verdict.get('reasoning', 'No reasoning provided.')}\n")
+            
+        return "\n".join(lines)
+
+
 
 def get_history_stats() -> Dict[str, Any]:
     """Computes running agreement rate and counts across all recorded debates."""
