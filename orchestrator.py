@@ -114,9 +114,15 @@ class DebateOrchestrator:
     until user casts their vote.
     """
     def __init__(self, topic: str, total_rounds: int = 3):
+        cleaned_topic = topic.strip() if isinstance(topic, str) else ""
+        if not cleaned_topic:
+            raise ValueError("Debate topic cannot be empty.")
+        if not isinstance(total_rounds, int) or total_rounds < 1:
+            raise ValueError("Total rounds must be a positive integer (at least 1).")
         self.id = str(uuid.uuid4())
-        self.topic = topic.strip()
+        self.topic = cleaned_topic
         self.total_rounds = total_rounds
+
         self.transcript: List[Dict[str, Any]] = []  # [{ "speaker": "A" | "B", "text": str, "round": int }]
         self._judge_verdict: Optional[Dict[str, Any]] = None  # Held privately on server/backend
         self.user_vote: Optional[str] = None
