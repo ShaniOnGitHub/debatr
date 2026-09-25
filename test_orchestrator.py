@@ -131,14 +131,33 @@ def test_history_stats_structure():
     print("=== TEST 3 PASSED ===\n")
 
 
+def test_transcript_formatting():
+    print("=== TEST 4: Transcript Formatting ===")
+    orch = DebateOrchestrator(topic="Renewable energy should replace fossil fuels completely", total_rounds=2)
+    assert orch.get_transcript_text() == "No arguments made yet."
+    
+    orch.transcript.append({"speaker": "A", "round": 1, "text": "Solar and wind are now cheaper than coal."})
+    orch.transcript.append({"speaker": "B", "round": 1, "text": "Grid storage is not yet ready for baseline power."})
+    
+    formatted = orch.get_transcript_text()
+    assert "Round 1 - Debater A (FOR):" in formatted
+    assert "Solar and wind are now cheaper than coal." in formatted
+    assert "Round 1 - Debater B (AGAINST):" in formatted
+    assert "Grid storage is not yet ready for baseline power." in formatted
+    print("✓ Confirmed: Transcript formatting outputs clean speaker and round sections.")
+    print("=== TEST 4 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
+    test_transcript_formatting()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
         test_live_llm_debate()
     else:
         print("ℹ️ Skipping live LLM integration test. Run with 'python test_orchestrator.py --live' to run live tests.")
+
 
 
