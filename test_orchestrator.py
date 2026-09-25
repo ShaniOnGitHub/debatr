@@ -335,6 +335,53 @@ def test_clear_history():
                 pass
 
 
+def test_history_stats_calculations():
+    print("=== TEST 10: History Statistics Edge Cases & Calculations ===")
+    import json
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+    
+    try:
+        # Case 1: Empty list
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump([], f)
+        stats = get_history_stats()
+        assert stats["total_debates"] == 0
+        assert stats["agreement_rate"] == 0.0
+        
+        # Case 2: 2 debates: 1 agreed, 1 disagreed
+        mock_data = [
+            {"id": "d1", "user_vote": "A", "judge_winner": "A", "agreed": True},
+            {"id": "d2", "user_vote": "B", "judge_winner": "A", "agreed": False}
+        ]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(mock_data, f)
+            
+        stats = get_history_stats()
+        assert stats["total_debates"] == 2
+        assert stats["agreement_count"] == 1
+        assert stats["agreement_rate"] == 50.0
+        assert stats["user_wins_a"] == 1
+        assert stats["user_wins_b"] == 1
+        assert stats["judge_wins_a"] == 2
+        assert stats["judge_wins_b"] == 0
+        
+        print("✓ Confirmed: Statistical counts and agreement rates are mathematically exact.")
+        print("=== TEST 10 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -344,12 +391,14 @@ if __name__ == "__main__":
     test_get_debate_by_id()
     test_export_transcript_markdown()
     test_clear_history()
+    test_history_stats_calculations()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
         test_live_llm_debate()
     else:
         print("ℹ️ Skipping live LLM integration test. Run with 'python test_orchestrator.py --live' to run live tests.")
+
 
 
 
