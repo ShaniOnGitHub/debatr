@@ -1,6 +1,6 @@
 import streamlit as st
 import time
-from orchestrator import DebateOrchestrator, get_history_stats
+from orchestrator import DebateOrchestrator, get_history_stats, get_model
 
 # Page Configuration - Sidebar collapsed by default
 st.set_page_config(
@@ -297,11 +297,12 @@ if st.session_state.debate_status == "idle":
     default_text = selected_preset if selected_preset != "Choose a topic or write your own..." else "Remote work is more effective than in-office work"
     topic_input = st.text_input("Proposition / Debate Topic", value=default_text, help="The proposition Debater A will support and Debater B will oppose.")
     
+    current_model = get_model()
     col_btn, col_info = st.columns([1, 2])
     with col_btn:
         start_btn = st.button("🚀 Start Live Debate", type="primary", use_container_width=True)
     with col_info:
-        st.caption("Engine: **OpenRouter (stealth/union-alpha)** • Silent Judge executes in background")
+        st.caption(f"Engine: **OpenRouter ({current_model})** • Silent Judge executes in background")
         
     if start_btn and topic_input.strip():
         st.session_state.topic = topic_input.strip()
@@ -313,6 +314,7 @@ if st.session_state.debate_status == "idle":
 # --- ACTIVE OR COMPLETED DEBATE ---
 else:
     orch: DebateOrchestrator = st.session_state.orchestrator
+    current_model = get_model()
     
     # Sleek Top Topic Banner with Reset Option
     col_banner, col_reset = st.columns([5, 1])
@@ -321,7 +323,7 @@ else:
         <div class="active-topic-bar">
             <div>
                 <div class="active-topic-title">📌 Proposition: {orch.topic}</div>
-                <div class="active-topic-sub">Rounds: {orch.total_rounds} • Model: stealth/union-alpha</div>
+                <div class="active-topic-sub">Rounds: {orch.total_rounds} • Model: {current_model}</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
