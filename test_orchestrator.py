@@ -254,6 +254,47 @@ def test_get_debate_by_id():
                 pass
 
 
+def test_export_transcript_markdown():
+    print("=== TEST 8: Export Transcript to Markdown ===")
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+    
+    try:
+        orch = DebateOrchestrator(topic="Social media creates more harm than good", total_rounds=1)
+        empty_md = orch.export_transcript_markdown()
+        assert "# Debate: Social media creates more harm than good" in empty_md
+        assert "_No arguments recorded yet._" in empty_md
+        
+        orch.transcript.append({"speaker": "A", "round": 1, "text": "Social media reduces attention spans."})
+        orch.transcript.append({"speaker": "B", "round": 1, "text": "Social media empowers global communities."})
+        orch._judge_verdict = {"winner": "A", "reasoning": "A presented stronger psychological research."}
+        orch.submit_user_vote("A")
+        
+        full_md = orch.export_transcript_markdown()
+        assert "### Round 1 — Debater A (FOR)" in full_md
+        assert "Social media reduces attention spans." in full_md
+        assert "### Round 1 — Debater B (AGAINST)" in full_md
+        assert "## Official Verdict" in full_md
+        assert "**Judge Winner**: Debater A" in full_md
+        assert "A presented stronger psychological research." in full_md
+        
+        print("✓ Confirmed: Markdown export correctly includes debate metadata, speeches, and verdict.")
+        print("=== TEST 8 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -261,12 +302,14 @@ if __name__ == "__main__":
     test_debate_input_validation()
     test_parse_judge_json_edge_cases()
     test_get_debate_by_id()
+    test_export_transcript_markdown()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
         test_live_llm_debate()
     else:
         print("ℹ️ Skipping live LLM integration test. Run with 'python test_orchestrator.py --live' to run live tests.")
+
 
 
 
