@@ -1,7 +1,7 @@
 import sys
 import os
 import tempfile
-from orchestrator import DebateOrchestrator, get_history_stats, get_debate_by_id
+from orchestrator import DebateOrchestrator, get_history_stats, get_debate_by_id, clear_history
 
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -295,6 +295,46 @@ def test_export_transcript_markdown():
 
 
 
+def test_clear_history():
+    print("=== TEST 9: Clear History Utility ===")
+    import json
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+    
+    try:
+        # Populate with dummy data
+        dummy_data = [{"id": "1", "agreed": True, "user_vote": "A", "judge_winner": "A"}]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(dummy_data, f)
+            
+        assert get_history_stats()["total_debates"] == 1
+        
+        # Clear history
+        success = clear_history()
+        assert success is True
+        
+        # Verify empty
+        with open(temp_path, "r", encoding="utf-8") as f:
+            content = json.load(f)
+        assert content == []
+        assert get_history_stats()["total_debates"] == 0
+        
+        print("✓ Confirmed: clear_history safely resets history to an empty list.")
+        print("=== TEST 9 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -303,12 +343,14 @@ if __name__ == "__main__":
     test_parse_judge_json_edge_cases()
     test_get_debate_by_id()
     test_export_transcript_markdown()
+    test_clear_history()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
         test_live_llm_debate()
     else:
         print("ℹ️ Skipping live LLM integration test. Run with 'python test_orchestrator.py --live' to run live tests.")
+
 
 
 
