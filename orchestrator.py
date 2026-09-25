@@ -40,6 +40,19 @@ def get_api_key() -> str:
 def get_model() -> str:
     return os.environ.get("OPENROUTER_MODEL", DEFAULT_MODEL)
 
+def _handle_api_response_errors(response: requests.Response, model_name: str) -> None:
+    """Provides plain-language error messages for OpenRouter HTTP failures."""
+    if response.ok:
+        return
+    if response.status_code == 401:
+        raise RuntimeError("OpenRouter rejected the request: your API key is invalid or missing. Check your .env file.")
+    if response.status_code == 404:
+        raise RuntimeError(f"The model '{model_name}' was not found on OpenRouter. Check your OPENROUTER_MODEL setting.")
+    if response.status_code == 429:
+        raise RuntimeError("OpenRouter rate limit reached or account credits are exhausted. Please check your account.")
+    raise RuntimeError(f"OpenRouter request failed with code {response.status_code}: {response.text[:200]}")
+
+
 def call_openrouter_stream(messages: List[Dict[str, str]], model: Optional[str] = None) -> Generator[str, None, None]:
     """Streams token chunks from OpenRouter chat completions API."""
     api_key = get_api_key()
@@ -60,7 +73,8 @@ def call_openrouter_stream(messages: List[Dict[str, str]], model: Optional[str] 
     }
     
     response = requests.post(url, headers=headers, json=payload, stream=True, timeout=60)
-    response.raise_for_status()
+    _handle_api_response_errors(response, selected_model)
+
     
     for line in response.iter_lines():
         if not line:
@@ -102,7 +116,7 @@ def call_openrouter_sync(messages: List[Dict[str, str]], model: Optional[str] = 
     }
     
     response = requests.post(url, headers=headers, json=payload, timeout=60)
-    response.raise_for_status()
+    _handle_api_response_errors(response, selected_model)
     data = response.json()
     return data["choices"][0]["message"]["content"]
 
