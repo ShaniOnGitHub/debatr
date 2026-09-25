@@ -148,16 +148,51 @@ def test_transcript_formatting():
     print("=== TEST 4 PASSED ===\n")
 
 
+def test_debate_input_validation():
+    print("=== TEST 5: Input Validation for Topic and Rounds ===")
+    # Empty string topic
+    try:
+        DebateOrchestrator(topic="")
+        assert False, "Should raise ValueError on empty topic"
+    except ValueError as e:
+        assert "Debate topic cannot be empty." in str(e)
+        
+    # Whitespace only topic
+    try:
+        DebateOrchestrator(topic="   ")
+        assert False, "Should raise ValueError on whitespace-only topic"
+    except ValueError as e:
+        assert "Debate topic cannot be empty." in str(e)
+        
+    # Zero or negative rounds
+    try:
+        DebateOrchestrator(topic="Valid topic", total_rounds=0)
+        assert False, "Should raise ValueError on zero rounds"
+    except ValueError as e:
+        assert "Total rounds must be a positive integer" in str(e)
+        
+    try:
+        DebateOrchestrator(topic="Valid topic", total_rounds=-2)
+        assert False, "Should raise ValueError on negative rounds"
+    except ValueError as e:
+        assert "Total rounds must be a positive integer" in str(e)
+        
+    print("✓ Confirmed: Invalid topic and round counts are rejected with clear errors.")
+    print("=== TEST 5 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
     test_transcript_formatting()
+    test_debate_input_validation()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
         test_live_llm_debate()
     else:
         print("ℹ️ Skipping live LLM integration test. Run with 'python test_orchestrator.py --live' to run live tests.")
+
 
 
 
