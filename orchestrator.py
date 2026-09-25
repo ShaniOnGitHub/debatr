@@ -399,3 +399,27 @@ def get_history_stats() -> Dict[str, Any]:
         "judge_wins_a": judge_a,
         "judge_wins_b": judge_b,
     }
+
+
+def get_debate_by_id(debate_id: str) -> Optional[Dict[str, Any]]:
+    """Retrieves a single debate record by its unique ID from the history file."""
+    if not debate_id or not isinstance(debate_id, str):
+        return None
+        
+    history_file = get_history_file()
+    if not os.path.exists(history_file):
+        return None
+        
+    try:
+        with open(history_file, "r", encoding="utf-8") as f:
+            history = json.load(f)
+            if not isinstance(history, list):
+                return None
+            for item in history:
+                if isinstance(item, dict) and item.get("id") == debate_id:
+                    return item
+    except Exception:
+        return None
+        
+    return None
+
