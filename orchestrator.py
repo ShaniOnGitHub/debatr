@@ -24,7 +24,12 @@ def load_dotenv():
 load_dotenv()
 
 DEFAULT_MODEL = "stealth/union-alpha"
-HISTORY_FILE = os.path.join(os.path.dirname(__file__), "debates_history.json")
+DEFAULT_HISTORY_FILE = os.path.join(os.path.dirname(__file__), "debates_history.json")
+
+def get_history_file() -> str:
+    """Returns the path to the history file, allowing override via DEBATR_HISTORY_FILE."""
+    return os.environ.get("DEBATR_HISTORY_FILE") or DEFAULT_HISTORY_FILE
+
 
 def get_api_key() -> str:
     env_key = os.environ.get("OPENROUTER_API_KEY")
@@ -310,23 +315,25 @@ class DebateOrchestrator:
             "reasoning": self._judge_verdict.get("reasoning")
         }
         
+        history_file = get_history_file()
         history = []
-        if os.path.exists(HISTORY_FILE):
+        if os.path.exists(history_file):
             try:
-                with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+                with open(history_file, "r", encoding="utf-8") as f:
                     history = json.load(f)
             except Exception:
                 history = []
                 
         history.append(record)
         
-        with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+        with open(history_file, "w", encoding="utf-8") as f:
             json.dump(history, f, indent=2)
 
 
 def get_history_stats() -> Dict[str, Any]:
     """Computes running agreement rate and counts across all recorded debates."""
-    if not os.path.exists(HISTORY_FILE):
+    history_file = get_history_file()
+    if not os.path.exists(history_file):
         return {
             "total_debates": 0,
             "agreement_count": 0,
@@ -338,7 +345,7 @@ def get_history_stats() -> Dict[str, Any]:
         }
         
     try:
-        with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+        with open(history_file, "r", encoding="utf-8") as f:
             history = json.load(f)
     except Exception:
         history = []
