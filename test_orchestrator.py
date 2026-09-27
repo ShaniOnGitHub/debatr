@@ -7,6 +7,7 @@ from orchestrator import (
     get_debate_by_id,
     clear_history,
     sanitize_topic,
+    MAX_ROUNDS,
 )
 
 if sys.platform == "win32":
@@ -182,6 +183,13 @@ def test_debate_input_validation():
         assert False, "Should raise ValueError on negative rounds"
     except ValueError as e:
         assert "Total rounds must be a positive integer" in str(e)
+
+    # Exceeding maximum rounds
+    try:
+        DebateOrchestrator(topic="Valid topic", total_rounds=MAX_ROUNDS + 1)
+        assert False, f"Should raise ValueError when rounds exceed {MAX_ROUNDS}"
+    except ValueError as e:
+        assert f"Total rounds cannot exceed {MAX_ROUNDS}" in str(e)
         
     print("✓ Confirmed: Invalid topic and round counts are rejected with clear errors.")
     print("=== TEST 5 PASSED ===\n")
