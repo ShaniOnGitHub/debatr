@@ -1,7 +1,13 @@
 import sys
 import os
 import tempfile
-from orchestrator import DebateOrchestrator, get_history_stats, get_debate_by_id, clear_history
+from orchestrator import (
+    DebateOrchestrator,
+    get_history_stats,
+    get_debate_by_id,
+    clear_history,
+    sanitize_topic,
+)
 
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -382,6 +388,18 @@ def test_history_stats_calculations():
                 pass
 
 
+def test_sanitize_topic():
+    print("\n=== TEST 11: Sanitize Topic Helper ===")
+    assert sanitize_topic("  Should AI be regulated?  ") == "Should AI be regulated?"
+    assert sanitize_topic("Multiple   spaces\t\nand   tabs") == "Multiple spaces and tabs"
+    assert sanitize_topic("Clean topic") == "Clean topic"
+    assert sanitize_topic("   ") == ""
+    assert sanitize_topic(None) == ""
+    assert sanitize_topic(123) == ""
+    print("✓ Confirmed: Topic sanitization strips whitespace and control characters cleanly.")
+    print("=== TEST 11 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -392,6 +410,7 @@ if __name__ == "__main__":
     test_export_transcript_markdown()
     test_clear_history()
     test_history_stats_calculations()
+    test_sanitize_topic()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
