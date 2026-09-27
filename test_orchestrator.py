@@ -9,6 +9,7 @@ from orchestrator import (
     clear_history,
     sanitize_topic,
     MAX_ROUNDS,
+    get_recent_debates,
 )
 
 if sys.platform == "win32":
@@ -500,6 +501,50 @@ def test_debate_status_lifecycle():
     print("=== TEST 16 PASSED ===\n")
 
 
+def test_get_recent_debates():
+    print("=== TEST 17: Get Recent Debates ===")
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+    
+    try:
+        assert get_recent_debates(5) == []
+        assert get_recent_debates(0) == []
+        assert get_recent_debates(-1) == []
+
+        mock_history = [
+            {"id": "d1", "topic": "Topic 1"},
+            {"id": "d2", "topic": "Topic 2"},
+            {"id": "d3", "topic": "Topic 3"},
+            {"id": "d4", "topic": "Topic 4"},
+        ]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(mock_history, f)
+
+        recent_2 = get_recent_debates(2)
+        assert len(recent_2) == 2
+        assert recent_2[0]["id"] == "d4"
+        assert recent_2[1]["id"] == "d3"
+
+        recent_all = get_recent_debates(10)
+        assert len(recent_all) == 4
+        assert recent_all[0]["id"] == "d4"
+        assert recent_all[3]["id"] == "d1"
+        print("✓ Confirmed: get_recent_debates returns recent records in reverse order.")
+        print("=== TEST 17 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -516,6 +561,7 @@ if __name__ == "__main__":
     test_export_transcript_json()
     test_export_transcript_plain_text()
     test_debate_status_lifecycle()
+    test_get_recent_debates()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
