@@ -408,6 +408,20 @@ def test_sanitize_topic():
     print("=== TEST 11 PASSED ===\n")
 
 
+def test_custom_model_override():
+    print("=== TEST 12: Custom Model Override ===")
+    orch_custom = DebateOrchestrator(topic="Custom model topic", model="anthropic/claude-3-opus")
+    assert orch_custom.model == "anthropic/claude-3-opus"
+    
+    orch_default = DebateOrchestrator(topic="Default model topic")
+    assert orch_default.model is None
+    
+    orch_whitespace = DebateOrchestrator(topic="Whitespace model topic", model="   ")
+    assert orch_whitespace.model is None
+    print("✓ Confirmed: Custom model parameter is correctly parsed and stored.")
+    print("=== TEST 12 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -419,6 +433,7 @@ if __name__ == "__main__":
     test_clear_history()
     test_history_stats_calculations()
     test_sanitize_topic()
+    test_custom_model_override()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
