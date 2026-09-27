@@ -421,6 +421,21 @@ class DebateOrchestrator:
             
         return "\n".join(lines)
 
+    def export_transcript_json(self, indent: int = 2) -> str:
+        """
+        Exports the debate as a formatted JSON string containing metadata,
+        speeches, metrics, and verdict if available.
+        """
+        data = {
+            "id": self.id,
+            "topic": self.topic,
+            "rounds": self.total_rounds,
+            "speeches": self.transcript,
+            "metrics": self.get_speech_metrics(),
+            "verdict": self.revealed_verdict,
+        }
+        return json.dumps(data, indent=indent)
+
 
 
 def get_history_stats() -> Dict[str, Any]:
