@@ -10,6 +10,7 @@ from orchestrator import (
     sanitize_topic,
     MAX_ROUNDS,
     get_recent_debates,
+    search_debates,
 )
 
 if sys.platform == "win32":
@@ -545,6 +546,49 @@ def test_get_recent_debates():
                 pass
 
 
+def test_search_debates():
+    print("=== TEST 18: Search Debates Helper ===")
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+    
+    try:
+        assert search_debates("anything") == []
+        assert search_debates("") == []
+        assert search_debates("   ") == []
+
+        mock_data = [
+            {"id": "s1", "topic": "Should space exploration receive government funding?", "reasoning": "Space drives innovation."},
+            {"id": "s2", "topic": "Remote work vs office work", "reasoning": "Higher worker productivity."}
+        ]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(mock_data, f)
+
+        res_topic = search_debates("space")
+        assert len(res_topic) == 1
+        assert res_topic[0]["id"] == "s1"
+
+        res_reasoning = search_debates("PRODUCTIVITY")
+        assert len(res_reasoning) == 1
+        assert res_reasoning[0]["id"] == "s2"
+
+        res_none = search_debates("cryptocurrency")
+        assert len(res_none) == 0
+        print("✓ Confirmed: search_debates finds matching topics and reasoning case-insensitively.")
+        print("=== TEST 18 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -562,6 +606,7 @@ if __name__ == "__main__":
     test_export_transcript_plain_text()
     test_debate_status_lifecycle()
     test_get_recent_debates()
+    test_search_debates()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
