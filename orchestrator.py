@@ -621,3 +621,26 @@ def search_debates(query: str) -> List[Dict[str, Any]]:
         return []
 
 
+def delete_debate_by_id(debate_id: str) -> bool:
+    """Removes a single debate record by its ID from history. Returns True if deleted."""
+    if not debate_id or not isinstance(debate_id, str):
+        return False
+    history_file = get_history_file()
+    if not os.path.exists(history_file):
+        return False
+    try:
+        with open(history_file, "r", encoding="utf-8") as f:
+            history = json.load(f)
+            if not isinstance(history, list):
+                return False
+        initial_len = len(history)
+        filtered = [item for item in history if isinstance(item, dict) and item.get("id") != debate_id]
+        if len(filtered) == initial_len:
+            return False
+        with open(history_file, "w", encoding="utf-8") as f:
+            json.dump(filtered, f, indent=2)
+        return True
+    except Exception:
+        return False
+
+
