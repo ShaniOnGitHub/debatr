@@ -137,6 +137,8 @@ def test_history_stats_structure():
         "user_wins_b",
         "judge_wins_a",
         "judge_wins_b",
+        "avg_score_a",
+        "avg_score_b",
     }
     assert expected_keys.issubset(stats.keys()), f"Missing keys in stats: {expected_keys - stats.keys()}"
     assert isinstance(stats["total_debates"], int), "total_debates should be an integer"
@@ -372,10 +374,10 @@ def test_history_stats_calculations():
         assert stats["total_debates"] == 0
         assert stats["agreement_rate"] == 0.0
         
-        # Case 2: 2 debates: 1 agreed, 1 disagreed
+        # Case 2: 2 debates: 1 agreed, 1 disagreed with scores
         mock_data = [
-            {"id": "d1", "user_vote": "A", "judge_winner": "A", "agreed": True},
-            {"id": "d2", "user_vote": "B", "judge_winner": "A", "agreed": False}
+            {"id": "d1", "user_vote": "A", "judge_winner": "A", "agreed": True, "scores": {"A": {"total": 24}, "B": {"total": 20}}},
+            {"id": "d2", "user_vote": "B", "judge_winner": "A", "agreed": False, "scores": {"A": {"total": 26}, "B": {"total": 22}}},
         ]
         with open(temp_path, "w", encoding="utf-8") as f:
             json.dump(mock_data, f)
@@ -388,6 +390,8 @@ def test_history_stats_calculations():
         assert stats["user_wins_b"] == 1
         assert stats["judge_wins_a"] == 2
         assert stats["judge_wins_b"] == 0
+        assert stats["avg_score_a"] == 25.0
+        assert stats["avg_score_b"] == 21.0
         
         print("✓ Confirmed: Statistical counts and agreement rates are mathematically exact.")
         print("=== TEST 10 PASSED ===\n")
