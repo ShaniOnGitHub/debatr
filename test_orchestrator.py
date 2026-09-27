@@ -11,6 +11,7 @@ from orchestrator import (
     MAX_ROUNDS,
     get_recent_debates,
     search_debates,
+    delete_debate_by_id,
 )
 
 if sys.platform == "win32":
@@ -589,6 +590,46 @@ def test_search_debates():
                 pass
 
 
+def test_delete_debate_by_id():
+    print("=== TEST 19: Delete Debate By ID ===")
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+    
+    try:
+        assert delete_debate_by_id("") is False
+        assert delete_debate_by_id(None) is False
+        assert delete_debate_by_id("non-existent") is False
+
+        mock_data = [
+            {"id": "del-1", "topic": "Topic 1"},
+            {"id": "del-2", "topic": "Topic 2"}
+        ]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(mock_data, f)
+
+        assert delete_debate_by_id("del-1") is True
+        assert delete_debate_by_id("del-1") is False
+
+        with open(temp_path, "r", encoding="utf-8") as f:
+            remaining = json.load(f)
+        assert len(remaining) == 1
+        assert remaining[0]["id"] == "del-2"
+        print("✓ Confirmed: delete_debate_by_id safely deletes specific records.")
+        print("=== TEST 19 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -607,6 +648,7 @@ if __name__ == "__main__":
     test_debate_status_lifecycle()
     test_get_recent_debates()
     test_search_debates()
+    test_delete_debate_by_id()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
