@@ -436,6 +436,41 @@ class DebateOrchestrator:
         }
         return json.dumps(data, indent=indent)
 
+    def export_transcript_plain_text(self) -> str:
+        """
+        Exports the debate transcript as a clean, plain-text document
+        without markdown syntax for easy copying.
+        """
+        lines = [
+            f"DEBATE TOPIC: {self.topic}",
+            f"Debate ID: {self.id}",
+            f"Total Rounds: {self.total_rounds}",
+            "=" * 50,
+            ""
+        ]
+        if not self.transcript:
+            lines.append("No arguments recorded yet.\n")
+        else:
+            for entry in self.transcript:
+                speaker_label = "Debater A (FOR)" if entry["speaker"] == "A" else "Debater B (AGAINST)"
+                lines.append(f"Round {entry['round']} - {speaker_label}:")
+                lines.append(entry["text"])
+                lines.append("")
+        
+        if self.revealed_verdict:
+            lines.append("=" * 50)
+            lines.append("OFFICIAL VERDICT")
+            lines.append(f"User Vote: Debater {self.revealed_verdict.get('user_vote')}")
+            lines.append(f"Judge Winner: Debater {self.revealed_verdict.get('winner')}")
+            agreed = "Yes" if self.revealed_verdict.get('agreed_with_ai') else "No"
+            lines.append(f"User Agreed With Judge: {agreed}")
+            lines.append("")
+            lines.append("Judge Reasoning:")
+            lines.append(self.revealed_verdict.get('reasoning', 'No reasoning provided.'))
+            lines.append("")
+            
+        return "\n".join(lines).strip()
+
 
 
 def get_history_stats() -> Dict[str, Any]:
