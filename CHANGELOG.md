@@ -4,6 +4,25 @@ All notable changes to the Debatr project are documented in this file.
 
 ---
 
+## [1.2.0] - 2026-09-27
+
+### Added
+- **Multi-Format Transcripts**: Added JSON export (`export_transcript_json()`) and clean plain text export (`export_transcript_plain_text()`).
+- **Speech Metrics**: Implemented `get_speech_metrics()` to calculate word counts and turns per debater.
+- **Categorized Presets**: Added `PRESET_TOPICS` categorized across AI, Society, and Science, along with helper accessors.
+- **Debate History Querying**: Added `get_recent_debates()` and `search_debates()` to search and inspect history records.
+- **Selective Debate Deletion**: Added `delete_debate_by_id()` to remove individual debate records.
+- **Lifecycle Status Tracking**: Added `status` property to track the four lifecycle states (`pending`, `in_progress`, `awaiting_vote`, `completed`).
+- **Score Averaging**: Added `avg_score_a` and `avg_score_b` computation in running statistics.
+- **UI Enhancements**: Added structured JSON transcript downloads and centralized preset topic selection in the Streamlit app.
+- **Expanded Test Suite**: Added 10 new unit tests bringing automated test coverage to 20 comprehensive scenarios.
+
+### Changed
+- **Input Validation**: Added `sanitize_topic()` to strip extra whitespace and control characters, and enforced `MAX_ROUNDS = 10`.
+- **Custom Model Support**: Allowed specifying model override directly in `DebateOrchestrator` constructor.
+
+---
+
 ## [1.1.0] - 2026-09-25
 
 ### Added
