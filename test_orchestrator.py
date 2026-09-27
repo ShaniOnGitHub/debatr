@@ -422,6 +422,29 @@ def test_custom_model_override():
     print("=== TEST 12 PASSED ===\n")
 
 
+def test_speech_metrics():
+    print("=== TEST 13: Speech Metrics Calculation ===")
+    orch = DebateOrchestrator(topic="Testing speech metrics", total_rounds=1)
+    empty_metrics = orch.get_speech_metrics()
+    assert empty_metrics["words_a"] == 0
+    assert empty_metrics["words_b"] == 0
+    assert empty_metrics["total_words"] == 0
+    assert empty_metrics["avg_words_per_turn"] == 0.0
+
+    orch.transcript.append({"speaker": "A", "round": 1, "text": "Four words in speech."})
+    orch.transcript.append({"speaker": "B", "round": 1, "text": "Six words in this debater speech."})
+    
+    metrics = orch.get_speech_metrics()
+    assert metrics["words_a"] == 4
+    assert metrics["words_b"] == 6
+    assert metrics["turns_a"] == 1
+    assert metrics["turns_b"] == 1
+    assert metrics["total_words"] == 10
+    assert metrics["avg_words_per_turn"] == 5.0
+    print("✓ Confirmed: Word counts and speech metrics calculate correctly.")
+    print("=== TEST 13 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -434,6 +457,7 @@ if __name__ == "__main__":
     test_history_stats_calculations()
     test_sanitize_topic()
     test_custom_model_override()
+    test_speech_metrics()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
