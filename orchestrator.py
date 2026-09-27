@@ -123,6 +123,14 @@ def call_openrouter_sync(messages: List[Dict[str, str]], model: Optional[str] = 
     return data["choices"][0]["message"]["content"]
 
 
+def sanitize_topic(topic: str) -> str:
+    """Cleans up debate topic text by removing extra spaces and control characters."""
+    if not isinstance(topic, str):
+        return ""
+    cleaned = "".join(ch if ch.isprintable() else " " for ch in topic)
+    return " ".join(cleaned.split()).strip()
+
+
 class DebateOrchestrator:
     """
     Orchestrates multi-round debate between Debater A (FOR) and Debater B (AGAINST),
@@ -130,7 +138,7 @@ class DebateOrchestrator:
     until user casts their vote.
     """
     def __init__(self, topic: str, total_rounds: int = 3):
-        cleaned_topic = topic.strip() if isinstance(topic, str) else ""
+        cleaned_topic = sanitize_topic(topic)
         if not cleaned_topic:
             raise ValueError("Debate topic cannot be empty.")
         if not isinstance(total_rounds, int) or total_rounds < 1:
