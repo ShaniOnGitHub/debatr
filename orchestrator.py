@@ -578,3 +578,20 @@ def clear_history() -> bool:
         return False
 
 
+def get_recent_debates(limit: int = 5) -> List[Dict[str, Any]]:
+    """Returns the most recent debates in reverse chronological order."""
+    if not isinstance(limit, int) or limit < 1:
+        return []
+    history_file = get_history_file()
+    if not os.path.exists(history_file):
+        return []
+    try:
+        with open(history_file, "r", encoding="utf-8") as f:
+            history = json.load(f)
+            if not isinstance(history, list):
+                return []
+            return list(reversed(history[-limit:]))
+    except Exception:
+        return []
+
+
