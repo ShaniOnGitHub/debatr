@@ -464,6 +464,25 @@ def test_export_transcript_json():
     print("=== TEST 14 PASSED ===\n")
 
 
+def test_export_transcript_plain_text():
+    print("=== TEST 15: Export Transcript to Plain Text ===")
+    orch = DebateOrchestrator(topic="Remote work productivity", total_rounds=1)
+    empty_txt = orch.export_transcript_plain_text()
+    assert "DEBATE TOPIC: Remote work productivity" in empty_txt
+    assert "No arguments recorded yet." in empty_txt
+
+    orch.transcript.append({"speaker": "A", "round": 1, "text": "Remote work saves commute time."})
+    orch.transcript.append({"speaker": "B", "round": 1, "text": "In-person work builds team culture."})
+    
+    txt = orch.export_transcript_plain_text()
+    assert "Round 1 - Debater A (FOR):" in txt
+    assert "Remote work saves commute time." in txt
+    assert "Round 1 - Debater B (AGAINST):" in txt
+    assert "In-person work builds team culture." in txt
+    print("✓ Confirmed: Plain text transcript export formats clean text.")
+    print("=== TEST 15 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -478,6 +497,7 @@ if __name__ == "__main__":
     test_custom_model_override()
     test_speech_metrics()
     test_export_transcript_json()
+    test_export_transcript_plain_text()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
