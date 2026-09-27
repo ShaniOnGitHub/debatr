@@ -530,6 +530,8 @@ def get_history_stats() -> Dict[str, Any]:
             "user_wins_b": 0,
             "judge_wins_a": 0,
             "judge_wins_b": 0,
+            "avg_score_a": 0.0,
+            "avg_score_b": 0.0,
         }
         
     try:
@@ -548,6 +550,8 @@ def get_history_stats() -> Dict[str, Any]:
             "user_wins_b": 0,
             "judge_wins_a": 0,
             "judge_wins_b": 0,
+            "avg_score_a": 0.0,
+            "avg_score_b": 0.0,
         }
         
     agreements = sum(1 for d in history if d.get("agreed", False))
@@ -557,6 +561,19 @@ def get_history_stats() -> Dict[str, Any]:
     judge_b = sum(1 for d in history if d.get("judge_winner") == "B")
     
     rate = round((agreements / total) * 100, 1)
+
+    scores_a = [
+        d["scores"]["A"]["total"]
+        for d in history
+        if isinstance(d, dict) and isinstance(d.get("scores"), dict) and "A" in d["scores"] and isinstance(d["scores"]["A"], dict) and "total" in d["scores"]["A"]
+    ]
+    scores_b = [
+        d["scores"]["B"]["total"]
+        for d in history
+        if isinstance(d, dict) and isinstance(d.get("scores"), dict) and "B" in d["scores"] and isinstance(d["scores"]["B"], dict) and "total" in d["scores"]["B"]
+    ]
+    avg_score_a = round(sum(scores_a) / len(scores_a), 1) if scores_a else 0.0
+    avg_score_b = round(sum(scores_b) / len(scores_b), 1) if scores_b else 0.0
     
     return {
         "total_debates": total,
@@ -566,6 +583,8 @@ def get_history_stats() -> Dict[str, Any]:
         "user_wins_b": user_b,
         "judge_wins_a": judge_a,
         "judge_wins_b": judge_b,
+        "avg_score_a": avg_score_a,
+        "avg_score_b": avg_score_b,
     }
 
 
