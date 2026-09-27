@@ -138,7 +138,7 @@ class DebateOrchestrator:
     runs silent background judge evaluation after all rounds, and withholds judge verdict
     until user casts their vote.
     """
-    def __init__(self, topic: str, total_rounds: int = 3):
+    def __init__(self, topic: str, total_rounds: int = 3, model: Optional[str] = None):
         cleaned_topic = sanitize_topic(topic)
         if not cleaned_topic:
             raise ValueError("Debate topic cannot be empty.")
@@ -149,6 +149,7 @@ class DebateOrchestrator:
         self.id = str(uuid.uuid4())
         self.topic = cleaned_topic
         self.total_rounds = total_rounds
+        self.model = model.strip() if isinstance(model, str) and model.strip() else None
 
         self.transcript: List[Dict[str, Any]] = []  # [{ "speaker": "A" | "B", "text": str, "round": int }]
         self._judge_verdict: Optional[Dict[str, Any]] = None  # Held privately on server/backend
@@ -210,7 +211,7 @@ class DebateOrchestrator:
         """Streams turn for speaker ('A' or 'B'), accumulates text, and appends to transcript."""
         messages = self._build_debater_messages(speaker, round_num)
         collected_tokens = []
-        for token in call_openrouter_stream(messages):
+        for token in call_openrouter_stream(messages, model=self.model):
             collected_tokens.append(token)
             yield token
         
@@ -265,7 +266,7 @@ class DebateOrchestrator:
             {"role": "user", "content": user_prompt}
         ]
         
-        raw_judge_output = call_openrouter_sync(messages)
+        raw_judge_output = call_openrouter_sync(messages, model=self.model)
         self._judge_verdict = self._parse_judge_json(raw_judge_output)
 
     def _parse_judge_json(self, raw_text: str) -> Dict[str, Any]:
