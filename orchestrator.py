@@ -26,6 +26,7 @@ load_dotenv()
 __version__ = "1.1.0"
 DEFAULT_MODEL = "stealth/union-alpha"
 DEFAULT_HISTORY_FILE = os.path.join(os.path.dirname(__file__), "debates_history.json")
+MAX_ROUNDS = 10
 
 
 def get_history_file() -> str:
@@ -143,6 +144,8 @@ class DebateOrchestrator:
             raise ValueError("Debate topic cannot be empty.")
         if not isinstance(total_rounds, int) or total_rounds < 1:
             raise ValueError("Total rounds must be a positive integer (at least 1).")
+        if total_rounds > MAX_ROUNDS:
+            raise ValueError(f"Total rounds cannot exceed {MAX_ROUNDS}.")
         self.id = str(uuid.uuid4())
         self.topic = cleaned_topic
         self.total_rounds = total_rounds
