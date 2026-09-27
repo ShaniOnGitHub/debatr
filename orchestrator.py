@@ -166,6 +166,33 @@ class DebateOrchestrator:
             lines.append(f"Round {entry['round']} - {speaker_name}:\n{entry['text']}")
         return "\n\n".join(lines)
 
+    def get_speech_metrics(self) -> Dict[str, Any]:
+        """Calculates word count and speech metrics for both debaters."""
+        words_a = 0
+        words_b = 0
+        turns_a = 0
+        turns_b = 0
+        for entry in self.transcript:
+            text = entry.get("text", "")
+            wc = len(text.split())
+            if entry.get("speaker") == "A":
+                words_a += wc
+                turns_a += 1
+            elif entry.get("speaker") == "B":
+                words_b += wc
+                turns_b += 1
+        total_words = words_a + words_b
+        total_turns = turns_a + turns_b
+        avg_words = round(total_words / total_turns, 1) if total_turns > 0 else 0.0
+        return {
+            "words_a": words_a,
+            "words_b": words_b,
+            "turns_a": turns_a,
+            "turns_b": turns_b,
+            "total_words": total_words,
+            "avg_words_per_turn": avg_words,
+        }
+
     def _build_debater_messages(self, speaker: str, round_num: int) -> List[Dict[str, str]]:
         is_a = (speaker == "A")
         stance = f"FOR the topic: \"{self.topic}\"" if is_a else f"AGAINST the topic: \"{self.topic}\""
