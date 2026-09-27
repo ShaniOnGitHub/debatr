@@ -56,6 +56,7 @@ Please follow these guidelines:
 - **Write for everyone**: Avoid technical jargon or insider words. If a term is required, explain it in the same sentence in simple terms.
 - **Keep changes focused**: Only change what is necessary for your feature or bug fix.
 - **Add tests**: When adding a new capability, include a matching unit test.
+- **Protect judge privacy**: The AI judge verdict must always remain secret until the user submits their vote.
 
 ---
 
