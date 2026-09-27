@@ -12,6 +12,9 @@ from orchestrator import (
     get_recent_debates,
     search_debates,
     delete_debate_by_id,
+    PRESET_TOPICS,
+    get_preset_categories,
+    get_topics_for_category,
 )
 
 if sys.platform == "win32":
@@ -630,6 +633,24 @@ def test_delete_debate_by_id():
                 pass
 
 
+def test_preset_topics():
+    print("=== TEST 20: Preset Debate Topics ===")
+    categories = get_preset_categories()
+    assert isinstance(categories, list)
+    assert "Artificial Intelligence" in categories
+    assert "Society & Ethics" in categories
+    assert "Science & Environment" in categories
+
+    ai_topics = get_topics_for_category("Artificial Intelligence")
+    assert len(ai_topics) >= 2
+    assert all(isinstance(t, str) and len(t) > 0 for t in ai_topics)
+
+    empty_topics = get_topics_for_category("NonExistentCategory")
+    assert empty_topics == []
+    print("✓ Confirmed: Preset topic categories and lists load cleanly.")
+    print("=== TEST 20 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -649,6 +670,7 @@ if __name__ == "__main__":
     test_get_recent_debates()
     test_search_debates()
     test_delete_debate_by_id()
+    test_preset_topics()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
