@@ -1,6 +1,6 @@
 import streamlit as st
 import time
-from orchestrator import DebateOrchestrator, get_history_stats, get_model
+from orchestrator import DebateOrchestrator, get_history_stats, get_model, PRESET_TOPICS
 
 # Page Configuration - Sidebar collapsed by default
 st.set_page_config(
@@ -280,13 +280,7 @@ if st.session_state.debate_status == "idle":
     <div class="setup-header">⚙️ Configure Your Debate</div>
     """, unsafe_allow_html=True)
     
-    preset_topics = [
-        "Remote work is more effective than in-office work",
-        "Universal Basic Income is essential in the age of AI",
-        "Social media does more net harm than good to society",
-        "Nuclear energy is indispensable for fighting climate change",
-        "Cats make superior household companions compared to dogs"
-    ]
+    preset_topics = [topic for cat_topics in PRESET_TOPICS.values() for topic in cat_topics]
     
     col_preset, col_rounds = st.columns([3, 1])
     with col_preset:
@@ -481,17 +475,26 @@ else:
                 )
                 
             st.markdown("<br>", unsafe_allow_html=True)
-            col_act1, col_act2 = st.columns(2)
+            col_act1, col_act2, col_act3 = st.columns(3)
             with col_act1:
                 transcript_md = orch.export_transcript_markdown()
                 st.download_button(
-                    label="📥 Download Debate Transcript (.md)",
+                    label="📥 Download Markdown (.md)",
                     data=transcript_md,
                     file_name=f"debate_{orch.id[:8]}.md",
                     mime="text/markdown",
                     use_container_width=True
                 )
             with col_act2:
+                transcript_json = orch.export_transcript_json()
+                st.download_button(
+                    label="📊 Download JSON (.json)",
+                    data=transcript_json,
+                    file_name=f"debate_{orch.id[:8]}.json",
+                    mime="application/json",
+                    use_container_width=True
+                )
+            with col_act3:
                 if st.button("⚔️ Start Another Debate", type="primary", use_container_width=True):
                     st.session_state.orchestrator = None
                     st.session_state.debate_status = "idle"
