@@ -595,3 +595,29 @@ def get_recent_debates(limit: int = 5) -> List[Dict[str, Any]]:
         return []
 
 
+def search_debates(query: str) -> List[Dict[str, Any]]:
+    """Searches history for debates matching query in topic or reasoning."""
+    cleaned_query = query.strip().lower() if isinstance(query, str) else ""
+    if not cleaned_query:
+        return []
+    history_file = get_history_file()
+    if not os.path.exists(history_file):
+        return []
+    try:
+        with open(history_file, "r", encoding="utf-8") as f:
+            history = json.load(f)
+            if not isinstance(history, list):
+                return []
+            results = []
+            for item in history:
+                if not isinstance(item, dict):
+                    continue
+                topic = str(item.get("topic", "")).lower()
+                reasoning = str(item.get("reasoning", "")).lower()
+                if cleaned_query in topic or cleaned_query in reasoning:
+                    results.append(item)
+            return results
+    except Exception:
+        return []
+
+
