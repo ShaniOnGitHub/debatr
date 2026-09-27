@@ -28,6 +28,34 @@ DEFAULT_MODEL = "stealth/union-alpha"
 DEFAULT_HISTORY_FILE = os.path.join(os.path.dirname(__file__), "debates_history.json")
 MAX_ROUNDS = 10
 
+PRESET_TOPICS: Dict[str, List[str]] = {
+    "Artificial Intelligence": [
+        "Should artificial intelligence systems have legal personhood?",
+        "Will generative AI cause more economic harm than benefit?",
+        "Should governments require safety licenses for frontier AI models?",
+    ],
+    "Society & Ethics": [
+        "Should universal basic income replace traditional welfare programs?",
+        "Is social media net negative for democratic discourse?",
+        "Should remote work be recognized as a legal worker right?",
+    ],
+    "Science & Environment": [
+        "Should nuclear energy be the primary replacement for fossil fuels?",
+        "Should space exploration receive substantial government funding?",
+        "Is geoengineering an acceptable tool to fight climate change?",
+    ],
+}
+
+
+def get_preset_categories() -> List[str]:
+    """Returns the available preset topic categories."""
+    return list(PRESET_TOPICS.keys())
+
+
+def get_topics_for_category(category: str) -> List[str]:
+    """Returns the list of topics for a given category, or empty list if not found."""
+    return PRESET_TOPICS.get(category, [])
+
 
 def get_history_file() -> str:
     """Returns the path to the history file, allowing override via DEBATR_HISTORY_FILE."""
