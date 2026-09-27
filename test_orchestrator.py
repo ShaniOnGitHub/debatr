@@ -483,6 +483,23 @@ def test_export_transcript_plain_text():
     print("=== TEST 15 PASSED ===\n")
 
 
+def test_debate_status_lifecycle():
+    print("=== TEST 16: Debate Status Lifecycle ===")
+    orch = DebateOrchestrator(topic="Lifecycle tracking", total_rounds=1)
+    assert orch.status == "pending"
+    
+    orch.transcript.append({"speaker": "A", "round": 1, "text": "Opening argument."})
+    assert orch.status == "in_progress"
+    
+    orch._judge_verdict = {"winner": "A", "scores": {}, "reasoning": "Good"}
+    assert orch.status == "awaiting_vote"
+    
+    orch.revealed_verdict = {"winner": "A", "user_vote": "A", "agreed_with_ai": True}
+    assert orch.status == "completed"
+    print("✓ Confirmed: Debate lifecycle status transitions correctly across all stages.")
+    print("=== TEST 16 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -498,6 +515,7 @@ if __name__ == "__main__":
     test_speech_metrics()
     test_export_transcript_json()
     test_export_transcript_plain_text()
+    test_debate_status_lifecycle()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
