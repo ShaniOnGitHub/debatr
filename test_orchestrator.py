@@ -1,6 +1,7 @@
 import sys
 import os
 import tempfile
+import json
 from orchestrator import (
     DebateOrchestrator,
     get_history_stats,
@@ -445,6 +446,24 @@ def test_speech_metrics():
     print("=== TEST 13 PASSED ===\n")
 
 
+def test_export_transcript_json():
+    print("=== TEST 14: Export Transcript to JSON ===")
+    orch = DebateOrchestrator(topic="Testing JSON export", total_rounds=1)
+    orch.transcript.append({"speaker": "A", "round": 1, "text": "Point FOR"})
+    orch.transcript.append({"speaker": "B", "round": 1, "text": "Point AGAINST"})
+    
+    json_str = orch.export_transcript_json()
+    parsed = json.loads(json_str)
+    assert parsed["id"] == orch.id
+    assert parsed["topic"] == "Testing JSON export"
+    assert parsed["rounds"] == 1
+    assert len(parsed["speeches"]) == 2
+    assert parsed["metrics"]["total_words"] == 4
+    assert parsed["verdict"] is None
+    print("✓ Confirmed: JSON transcript exports valid, structured debate data.")
+    print("=== TEST 14 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -458,6 +477,7 @@ if __name__ == "__main__":
     test_sanitize_topic()
     test_custom_model_override()
     test_speech_metrics()
+    test_export_transcript_json()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
