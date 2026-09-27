@@ -157,6 +157,23 @@ class DebateOrchestrator:
         self.revealed_verdict: Optional[Dict[str, Any]] = None
         self.completed = False
 
+    @property
+    def status(self) -> str:
+        """
+        Returns the current lifecycle stage of the debate:
+        - 'pending': No arguments have been delivered yet.
+        - 'in_progress': Debate turns are underway.
+        - 'awaiting_vote': Arguments complete and judge has evaluated, awaiting user vote.
+        - 'completed': User vote recorded and judge verdict revealed.
+        """
+        if self.completed or self.revealed_verdict is not None:
+            return "completed"
+        if self._judge_verdict is not None:
+            return "awaiting_vote"
+        if len(self.transcript) > 0:
+            return "in_progress"
+        return "pending"
+
     def get_transcript_text(self) -> str:
         if not self.transcript:
             return "No arguments made yet."
