@@ -17,6 +17,7 @@ from orchestrator import (
     get_topics_for_category,
     generate_debate_slug,
     backup_history,
+    estimate_token_count,
 )
 
 if sys.platform == "win32":
@@ -718,6 +719,29 @@ def test_backup_history():
                 pass
 
 
+def test_estimate_token_count():
+    print("=== TEST 23: Approximate Token Estimation ===")
+    assert estimate_token_count("") == 0
+    assert estimate_token_count("   ") == 0
+    assert estimate_token_count(None) == 0
+    assert estimate_token_count("AI") == 1
+    assert estimate_token_count("Hello world!") == 3
+
+    orch = DebateOrchestrator(topic="Testing token metrics", total_rounds=1)
+    orch.transcript.append({"speaker": "A", "round": 1, "text": "This is a clean speech with several words."})
+    orch.transcript.append({"speaker": "B", "round": 1, "text": "Another speech with counter points here."})
+    
+    metrics = orch.get_speech_metrics()
+    assert "tokens_a" in metrics
+    assert "tokens_b" in metrics
+    assert "total_tokens" in metrics
+    assert metrics["tokens_a"] > 0
+    assert metrics["tokens_b"] > 0
+    assert metrics["total_tokens"] == metrics["tokens_a"] + metrics["tokens_b"]
+    print("✓ Confirmed: Token estimation calculates sensible token counts.")
+    print("=== TEST 23 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -740,6 +764,7 @@ if __name__ == "__main__":
     test_preset_topics()
     test_generate_debate_slug()
     test_backup_history()
+    test_estimate_token_count()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
