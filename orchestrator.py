@@ -707,3 +707,27 @@ def delete_debate_by_id(debate_id: str) -> bool:
         return False
 
 
+def backup_history(dest_path: Optional[str] = None) -> str:
+    """Creates a backup copy of the debates history file. Returns the backup file path."""
+    history_file = get_history_file()
+    data = []
+    if os.path.exists(history_file):
+        try:
+            with open(history_file, "r", encoding="utf-8") as f:
+                loaded = json.load(f)
+                if isinstance(loaded, list):
+                    data = loaded
+        except Exception:
+            data = []
+    if dest_path and isinstance(dest_path, str) and dest_path.strip():
+        target = os.path.abspath(dest_path.strip())
+    else:
+        ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        dir_name = os.path.dirname(os.path.abspath(history_file)) or "."
+        target = os.path.join(dir_name, f"debates_history_backup_{ts}.json")
+    os.makedirs(os.path.dirname(target), exist_ok=True)
+    with open(target, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+    return target
+
+
