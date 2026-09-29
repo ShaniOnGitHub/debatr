@@ -183,6 +183,16 @@ def estimate_token_count(text: str) -> int:
     return max(1, round(len(text.strip()) / 4.0))
 
 
+def get_debater_stance(speaker: str, topic: str) -> str:
+    """Returns a clear explanation of the debater's assigned stance."""
+    normalized = str(speaker).strip().upper()
+    if normalized == "A":
+        return f"Argues FOR the proposition: \"{topic}\""
+    if normalized == "B":
+        return f"Argues AGAINST the proposition: \"{topic}\""
+    raise ValueError(f"Invalid debater speaker '{speaker}'. Must be 'A' or 'B'.")
+
+
 class DebateOrchestrator:
     """
     Orchestrates multi-round debate between Debater A (FOR) and Debater B (AGAINST),
@@ -233,6 +243,10 @@ class DebateOrchestrator:
             speaker_name = "Debater A (FOR)" if entry["speaker"] == "A" else "Debater B (AGAINST)"
             lines.append(f"Round {entry['round']} - {speaker_name}:\n{entry['text']}")
         return "\n\n".join(lines)
+
+    def get_stance(self, speaker: str) -> str:
+        """Returns the debater's assigned stance for this debate's topic."""
+        return get_debater_stance(speaker, self.topic)
 
     def get_speech_metrics(self) -> Dict[str, Any]:
         """Calculates word count and speech metrics for both debaters."""
