@@ -176,6 +176,13 @@ def generate_debate_slug(topic: str, max_length: int = 40) -> str:
     return truncated or "debate"
 
 
+def estimate_token_count(text: str) -> int:
+    """Provides a fast, approximate token count without external libraries."""
+    if not isinstance(text, str) or not text.strip():
+        return 0
+    return max(1, round(len(text.strip()) / 4.0))
+
+
 class DebateOrchestrator:
     """
     Orchestrates multi-round debate between Debater A (FOR) and Debater B (AGAINST),
@@ -231,26 +238,35 @@ class DebateOrchestrator:
         """Calculates word count and speech metrics for both debaters."""
         words_a = 0
         words_b = 0
+        tokens_a = 0
+        tokens_b = 0
         turns_a = 0
         turns_b = 0
         for entry in self.transcript:
             text = entry.get("text", "")
             wc = len(text.split())
+            tc = estimate_token_count(text)
             if entry.get("speaker") == "A":
                 words_a += wc
+                tokens_a += tc
                 turns_a += 1
             elif entry.get("speaker") == "B":
                 words_b += wc
+                tokens_b += tc
                 turns_b += 1
         total_words = words_a + words_b
+        total_tokens = tokens_a + tokens_b
         total_turns = turns_a + turns_b
         avg_words = round(total_words / total_turns, 1) if total_turns > 0 else 0.0
         return {
             "words_a": words_a,
             "words_b": words_b,
+            "tokens_a": tokens_a,
+            "tokens_b": tokens_b,
             "turns_a": turns_a,
             "turns_b": turns_b,
             "total_words": total_words,
+            "total_tokens": total_tokens,
             "avg_words_per_turn": avg_words,
         }
 
