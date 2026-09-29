@@ -761,3 +761,23 @@ def backup_history(dest_path: Optional[str] = None) -> str:
     return target
 
 
+def filter_debates_by_winner(winner: str) -> List[Dict[str, Any]]:
+    """Returns past debates won by a specific debater ('A' or 'B')."""
+    if not isinstance(winner, str):
+        return []
+    normalized = winner.strip().upper()
+    if normalized not in ("A", "B"):
+        return []
+    history_file = get_history_file()
+    if not os.path.exists(history_file):
+        return []
+    try:
+        with open(history_file, "r", encoding="utf-8") as f:
+            history = json.load(f)
+            if not isinstance(history, list):
+                return []
+            return [d for d in history if isinstance(d, dict) and d.get("judge_winner") == normalized]
+    except Exception:
+        return []
+
+
