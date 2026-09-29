@@ -16,6 +16,7 @@ from orchestrator import (
     get_preset_categories,
     get_topics_for_category,
     generate_debate_slug,
+    backup_history,
 )
 
 if sys.platform == "win32":
@@ -672,6 +673,51 @@ def test_generate_debate_slug():
     print("=== TEST 21 PASSED ===\n")
 
 
+def test_backup_history():
+    print("=== TEST 22: Backup History Utility ===")
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+    
+    custom_backup = temp_path + ".bak"
+    try:
+        sample = [{"id": "b1", "topic": "Topic B1"}, {"id": "b2", "topic": "Topic B2"}]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(sample, f)
+
+        backup_file = backup_history(dest_path=custom_backup)
+        assert os.path.exists(backup_file)
+        with open(backup_file, "r", encoding="utf-8") as f:
+            loaded = json.load(f)
+        assert len(loaded) == 2
+        assert loaded[0]["id"] == "b1"
+
+        auto_backup = backup_history()
+        assert os.path.exists(auto_backup)
+        try:
+            os.remove(auto_backup)
+        except Exception:
+            pass
+        print("✓ Confirmed: backup_history creates valid backup copies of history.")
+        print("=== TEST 22 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+        if os.path.exists(custom_backup):
+            try:
+                os.remove(custom_backup)
+            except Exception:
+                pass
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -693,6 +739,7 @@ if __name__ == "__main__":
     test_delete_debate_by_id()
     test_preset_topics()
     test_generate_debate_slug()
+    test_backup_history()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
