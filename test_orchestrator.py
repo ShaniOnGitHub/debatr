@@ -15,6 +15,7 @@ from orchestrator import (
     PRESET_TOPICS,
     get_preset_categories,
     get_topics_for_category,
+    generate_debate_slug,
 )
 
 if sys.platform == "win32":
@@ -655,6 +656,22 @@ def test_preset_topics():
     print("=== TEST 20 PASSED ===\n")
 
 
+def test_generate_debate_slug():
+    print("=== TEST 21: Generate Debate Slug ===")
+    assert generate_debate_slug("Should AI replace human programmers?") == "should-ai-replace-human-programmers"
+    assert generate_debate_slug("AI: The Future? (Yes/No!)") == "ai-the-future-yes-no"
+    
+    slug_trunc = generate_debate_slug("This is a very long debate topic that exceeds twenty chars", max_length=20)
+    assert len(slug_trunc) <= 20
+    assert not slug_trunc.endswith("-")
+    
+    assert generate_debate_slug("") == "debate"
+    assert generate_debate_slug("   ") == "debate"
+    assert generate_debate_slug(None) == "debate"
+    print("✓ Confirmed: generate_debate_slug outputs safe and clean slugs.")
+    print("=== TEST 21 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -675,6 +692,7 @@ if __name__ == "__main__":
     test_search_debates()
     test_delete_debate_by_id()
     test_preset_topics()
+    test_generate_debate_slug()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
