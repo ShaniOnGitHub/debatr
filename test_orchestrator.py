@@ -18,6 +18,7 @@ from orchestrator import (
     generate_debate_slug,
     backup_history,
     estimate_token_count,
+    get_debater_stance,
 )
 
 if sys.platform == "win32":
@@ -742,6 +743,29 @@ def test_estimate_token_count():
     print("=== TEST 23 PASSED ===\n")
 
 
+def test_get_debater_stance():
+    print("=== TEST 24: Get Debater Stance Utility ===")
+    stance_a = get_debater_stance("A", "AI should be open source")
+    stance_b = get_debater_stance("B", "AI should be open source")
+    assert "FOR" in stance_a
+    assert "AGAINST" in stance_b
+    assert "AI should be open source" in stance_a
+    
+    assert get_debater_stance("a", "Topic") == get_debater_stance("A", "Topic")
+    assert get_debater_stance("b", "Topic") == get_debater_stance("B", "Topic")
+    
+    try:
+        get_debater_stance("C", "Topic")
+        assert False, "Should raise ValueError for invalid speaker"
+    except ValueError as e:
+        assert "Invalid debater speaker" in str(e)
+
+    orch = DebateOrchestrator(topic="Remote work is optimal", total_rounds=1)
+    assert orch.get_stance("A") == get_debater_stance("A", "Remote work is optimal")
+    print("✓ Confirmed: get_debater_stance returns accurate position descriptions.")
+    print("=== TEST 24 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -765,6 +789,7 @@ if __name__ == "__main__":
     test_generate_debate_slug()
     test_backup_history()
     test_estimate_token_count()
+    test_get_debater_stance()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
