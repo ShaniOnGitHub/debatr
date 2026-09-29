@@ -13,7 +13,8 @@
 - **Cumulative Agreement Rate**: Tracks your alignment with the AI judge across all debates.
 - **Flexible Export Options**: Download your complete debate transcripts as formatted Markdown (`.md`), structured data (`.json`), or plain text.
 - **Categorized Topic Presets**: Get started quickly with curated debate prompts across Technology, Society, and Science.
-- **Debate History & Search**: Search past records by keywords or review recent debate decisions.
+- **Debate History Management**: Search past debates by keyword, filter records by winner, and create timestamped backups with `backup_history()`.
+- **Slug Generation & Speech Metrics**: Generate clean, filesystem-safe debate filenames and estimate token/word counts per debater.
 - **Minimal, Modern UI**: Built with Streamlit with an in-page configuration panel, preset topics, and a live statistics banner.
 
 ---
