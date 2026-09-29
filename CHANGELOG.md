@@ -4,6 +4,18 @@ All notable changes to the Debatr project are documented in this file.
 
 ---
 
+## [1.3.0] - 2026-09-29
+
+### Added
+- **Debate Slug Generator**: Added `generate_debate_slug()` to format debate topics into clean, filesystem-safe filenames.
+- **History Backup Utility**: Added `backup_history()` to create timestamped or custom backup copies of the debates history file.
+- **Approximate Token Estimator**: Added `estimate_token_count()` and integrated token tracking into speech metrics.
+- **Debater Stance Helper**: Added `get_debater_stance()` and `DebateOrchestrator.get_stance()` for clear debater position descriptions.
+- **Winner Filter**: Added `filter_debates_by_winner()` to quickly filter past debates by winning debater.
+- **Expanded Test Suite**: Added 5 new unit tests, bringing automated test coverage to 25 verified test scenarios.
+
+---
+
 ## [1.2.0] - 2026-09-27
 
 ### Added
