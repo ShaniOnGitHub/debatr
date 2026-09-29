@@ -19,6 +19,7 @@ from orchestrator import (
     backup_history,
     estimate_token_count,
     get_debater_stance,
+    filter_debates_by_winner,
 )
 
 if sys.platform == "win32":
@@ -766,6 +767,48 @@ def test_get_debater_stance():
     print("=== TEST 24 PASSED ===\n")
 
 
+def test_filter_debates_by_winner():
+    print("=== TEST 25: Filter Debates By Winner ===")
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+    
+    try:
+        assert filter_debates_by_winner("A") == []
+        assert filter_debates_by_winner("invalid") == []
+        assert filter_debates_by_winner(None) == []
+
+        mock_data = [
+            {"id": "w1", "judge_winner": "A"},
+            {"id": "w2", "judge_winner": "B"},
+            {"id": "w3", "judge_winner": "A"},
+        ]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(mock_data, f)
+
+        res_a = filter_debates_by_winner("A")
+        assert len(res_a) == 2
+        assert res_a[0]["id"] == "w1"
+        assert res_a[1]["id"] == "w3"
+
+        res_b = filter_debates_by_winner("b")
+        assert len(res_b) == 1
+        assert res_b[0]["id"] == "w2"
+        print("✓ Confirmed: filter_debates_by_winner accurately groups debate winners.")
+        print("=== TEST 25 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -790,6 +833,7 @@ if __name__ == "__main__":
     test_backup_history()
     test_estimate_token_count()
     test_get_debater_stance()
+    test_filter_debates_by_winner()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
