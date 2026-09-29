@@ -160,6 +160,22 @@ def sanitize_topic(topic: str) -> str:
     return " ".join(cleaned.split()).strip()
 
 
+def generate_debate_slug(topic: str, max_length: int = 40) -> str:
+    """Creates a URL- and filename-safe slug from a debate topic."""
+    if not isinstance(topic, str) or not topic.strip():
+        return "debate"
+    chars = [ch.lower() if ch.isalnum() else "-" for ch in topic.strip()]
+    slug = "".join(chars)
+    parts = [p for p in slug.split("-") if p]
+    combined = "-".join(parts)
+    if not combined:
+        return "debate"
+    if len(combined) <= max_length:
+        return combined
+    truncated = combined[:max_length].rstrip("-")
+    return truncated or "debate"
+
+
 class DebateOrchestrator:
     """
     Orchestrates multi-round debate between Debater A (FOR) and Debater B (AGAINST),
