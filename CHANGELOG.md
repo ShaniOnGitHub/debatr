@@ -4,6 +4,23 @@ All notable changes to the Debatr project are documented in this file.
 
 ---
 
+## [1.4.0] - 2026-10-01
+
+### Added
+- **HTML Transcript Export**: Added `export_transcript_html()` to generate self-contained, styled HTML debate transcripts.
+- **CSV Transcript Export**: Added `export_transcript_csv()` to export tabular speech records for spreadsheet analysis.
+- **Date Range Filter**: Added `filter_debates_by_date()` to filter historical debate sessions by timestamp intervals.
+- **Lexical Diversity Analysis**: Added `calculate_lexical_diversity()` and integrated vocabulary richness into speech metrics.
+- **Preset Topic Search**: Added `search_preset_topics()` to find debate propositions across categories by keyword.
+- **Round Turn Exchanges**: Added `get_round_exchanges()` to inspect debate turns side-by-side round-by-round.
+- **History Summary Report**: Added `get_history_summary_report()` for aggregated win rates and agreement statistics.
+- **Duration Tracking**: Added session duration tracking with `get_duration_seconds()` on the debate orchestrator.
+- **Winning Point Differential**: Added `get_winning_margin()` to compute score spreads from judge evaluation cards.
+- **Topic Quality Validator**: Added `validate_preset_topic()` to enforce length and clarity constraints.
+- **Expanded Test Suite**: Added 10 new unit tests, bringing automated test coverage to 35 verified test scenarios.
+
+---
+
 ## [1.3.0] - 2026-09-29
 
 ### Added
