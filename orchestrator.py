@@ -278,6 +278,32 @@ class DebateOrchestrator:
             lines.append(f"Round {entry['round']} - {speaker_name}:\n{entry['text']}")
         return "\n\n".join(lines)
 
+    def get_round_exchanges(self) -> List[Dict[str, Any]]:
+        """
+        Groups speeches into side-by-side round exchanges.
+        Returns a list of dicts with 'round', 'debater_a', and 'debater_b'.
+        """
+        rounds_dict: Dict[int, Dict[str, str]] = {}
+        for entry in self.transcript:
+            r = entry.get("round", 1)
+            speaker = entry.get("speaker", "A")
+            text = entry.get("text", "")
+            if r not in rounds_dict:
+                rounds_dict[r] = {"debater_a": "", "debater_b": ""}
+            if speaker == "A":
+                rounds_dict[r]["debater_a"] = text
+            elif speaker == "B":
+                rounds_dict[r]["debater_b"] = text
+
+        exchanges = []
+        for r in sorted(rounds_dict.keys()):
+            exchanges.append({
+                "round": r,
+                "debater_a": rounds_dict[r]["debater_a"],
+                "debater_b": rounds_dict[r]["debater_b"],
+            })
+        return exchanges
+
     def get_stance(self, speaker: str) -> str:
         """Returns the debater's assigned stance for this debate's topic."""
         return get_debater_stance(speaker, self.topic)
