@@ -791,6 +791,51 @@ def get_history_stats() -> Dict[str, Any]:
     }
 
 
+def get_history_summary_report() -> Dict[str, Any]:
+    """
+    Produces a high-level summary report of all past debates.
+    Calculates win rates, agreement percentage, and average score difference.
+    """
+    stats = get_history_stats()
+    total = stats["total_debates"]
+    if total == 0:
+        return {
+            "total_debates": 0,
+            "agreement_rate_pct": 0.0,
+            "judge_win_rate_a_pct": 0.0,
+            "judge_win_rate_b_pct": 0.0,
+            "user_win_rate_a_pct": 0.0,
+            "user_win_rate_b_pct": 0.0,
+            "dominant_winner": "Tied",
+            "score_margin": 0.0,
+        }
+
+    judge_a_rate = round((stats["judge_wins_a"] / total) * 100, 1)
+    judge_b_rate = round((stats["judge_wins_b"] / total) * 100, 1)
+    user_a_rate = round((stats["user_wins_a"] / total) * 100, 1)
+    user_b_rate = round((stats["user_wins_b"] / total) * 100, 1)
+
+    if stats["judge_wins_a"] > stats["judge_wins_b"]:
+        dominant = "Debater A"
+    elif stats["judge_wins_b"] > stats["judge_wins_a"]:
+        dominant = "Debater B"
+    else:
+        dominant = "Tied"
+
+    margin = round(abs(stats["avg_score_a"] - stats["avg_score_b"]), 1)
+
+    return {
+        "total_debates": total,
+        "agreement_rate_pct": stats["agreement_rate"],
+        "judge_win_rate_a_pct": judge_a_rate,
+        "judge_win_rate_b_pct": judge_b_rate,
+        "user_win_rate_a_pct": user_a_rate,
+        "user_win_rate_b_pct": user_b_rate,
+        "dominant_winner": dominant,
+        "score_margin": margin,
+    }
+
+
 def get_debate_by_id(debate_id: str) -> Optional[Dict[str, Any]]:
     """Retrieves a single debate record by its unique ID from the history file."""
     if not debate_id or not isinstance(debate_id, str):
