@@ -15,6 +15,7 @@ from orchestrator import (
     PRESET_TOPICS,
     get_preset_categories,
     get_topics_for_category,
+    search_preset_topics,
     generate_debate_slug,
     backup_history,
     estimate_token_count,
@@ -923,6 +924,32 @@ def test_calculate_lexical_diversity():
     print("=== TEST 29 PASSED ===\n")
 
 
+def test_search_preset_topics():
+    print("=== TEST 30: Search Preset Topics ===")
+    all_presets = search_preset_topics()
+    assert len(all_presets) == 9
+
+    ai_results = search_preset_topics("artificial intelligence")
+    assert len(ai_results) == 3
+    for r in ai_results:
+        assert r["category"] == "Artificial Intelligence"
+
+    ubi_results = search_preset_topics("basic income")
+    assert len(ubi_results) == 1
+    assert "universal basic income" in ubi_results[0]["topic"].lower()
+
+    climate_results = search_preset_topics("climate")
+    assert len(climate_results) == 1
+    assert climate_results[0]["category"] == "Science & Environment"
+
+    no_match = search_preset_topics("nonexistent xyz term")
+    assert no_match == []
+
+    print("✓ Confirmed: search_preset_topics accurately filters presets across categories.")
+    print("=== TEST 30 PASSED ===\n")
+
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -952,6 +979,7 @@ if __name__ == "__main__":
     test_export_transcript_csv()
     test_filter_debates_by_date()
     test_calculate_lexical_diversity()
+    test_search_preset_topics()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
