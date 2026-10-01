@@ -949,6 +949,28 @@ def test_search_preset_topics():
     print("=== TEST 30 PASSED ===\n")
 
 
+def test_get_round_exchanges():
+    print("=== TEST 31: Get Round Exchanges ===")
+    orch = DebateOrchestrator(topic="Should college education be free?", total_rounds=2)
+    assert orch.get_round_exchanges() == []
+
+    orch.transcript.append({"speaker": "A", "round": 1, "text": "Education empowers youth."})
+    orch.transcript.append({"speaker": "B", "round": 1, "text": "Free tuition strains public budgets."})
+    orch.transcript.append({"speaker": "A", "round": 2, "text": "Higher education returns tax revenue long term."})
+    orch.transcript.append({"speaker": "B", "round": 2, "text": "Vocational paths provide faster trade employment."})
+
+    exchanges = orch.get_round_exchanges()
+    assert len(exchanges) == 2
+    assert exchanges[0]["round"] == 1
+    assert exchanges[0]["debater_a"] == "Education empowers youth."
+    assert exchanges[0]["debater_b"] == "Free tuition strains public budgets."
+    assert exchanges[1]["round"] == 2
+    assert exchanges[1]["debater_a"] == "Higher education returns tax revenue long term."
+    assert exchanges[1]["debater_b"] == "Vocational paths provide faster trade employment."
+
+    print("✓ Confirmed: get_round_exchanges pairs turn arguments cleanly by round.")
+    print("=== TEST 31 PASSED ===\n")
+
 
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
@@ -980,6 +1002,7 @@ if __name__ == "__main__":
     test_filter_debates_by_date()
     test_calculate_lexical_diversity()
     test_search_preset_topics()
+    test_get_round_exchanges()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
