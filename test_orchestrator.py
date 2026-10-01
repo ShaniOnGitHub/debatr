@@ -23,6 +23,7 @@ from orchestrator import (
     filter_debates_by_winner,
     filter_debates_by_date,
     calculate_lexical_diversity,
+    get_history_summary_report,
 )
 
 if sys.platform == "win32":
@@ -972,6 +973,47 @@ def test_get_round_exchanges():
     print("=== TEST 31 PASSED ===\n")
 
 
+def test_get_history_summary_report():
+    print("=== TEST 32: Get History Summary Report ===")
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+    try:
+        empty_rep = get_history_summary_report()
+        assert empty_rep["total_debates"] == 0
+        assert empty_rep["dominant_winner"] == "Tied"
+
+        mock_data = [
+            {"id": "1", "agreed": True, "user_vote": "A", "judge_winner": "A", "scores": {"A": {"total": 25}, "B": {"total": 20}}},
+            {"id": "2", "agreed": False, "user_vote": "B", "judge_winner": "A", "scores": {"A": {"total": 24}, "B": {"total": 22}}},
+        ]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(mock_data, f)
+
+        rep = get_history_summary_report()
+        assert rep["total_debates"] == 2
+        assert rep["agreement_rate_pct"] == 50.0
+        assert rep["judge_win_rate_a_pct"] == 100.0
+        assert rep["judge_win_rate_b_pct"] == 0.0
+        assert rep["dominant_winner"] == "Debater A"
+        assert rep["score_margin"] == 3.5
+
+        print("✓ Confirmed: get_history_summary_report provides accurate percentage summaries.")
+        print("=== TEST 32 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -1003,6 +1045,7 @@ if __name__ == "__main__":
     test_calculate_lexical_diversity()
     test_search_preset_topics()
     test_get_round_exchanges()
+    test_get_history_summary_report()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
