@@ -24,6 +24,7 @@ from orchestrator import (
     filter_debates_by_date,
     calculate_lexical_diversity,
     get_history_summary_report,
+    get_winning_margin,
 )
 
 if sys.platform == "win32":
@@ -1031,6 +1032,32 @@ def test_debate_duration_tracking():
     print("=== TEST 33 PASSED ===\n")
 
 
+def test_get_winning_margin():
+    print("=== TEST 34: Get Winning Margin ===")
+    assert get_winning_margin({}) == 0
+    assert get_winning_margin({"scores": {}}) == 0
+
+    verdict_tied = {
+        "scores": {
+            "A": {"total": 24},
+            "B": {"total": 24}
+        }
+    }
+    assert get_winning_margin(verdict_tied) == 0
+
+    verdict_diff = {
+        "scores": {
+            "A": {"total": 28},
+            "B": {"total": 22}
+        }
+    }
+    assert get_winning_margin(verdict_diff) == 6
+
+    print("✓ Confirmed: get_winning_margin correctly calculates judge point differentials.")
+    print("=== TEST 34 PASSED ===\n")
+
+
+
 
 
 if __name__ == "__main__":
@@ -1066,6 +1093,7 @@ if __name__ == "__main__":
     test_get_round_exchanges()
     test_get_history_summary_report()
     test_debate_duration_tracking()
+    test_get_winning_margin()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
