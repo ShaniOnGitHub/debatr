@@ -809,6 +809,34 @@ def test_filter_debates_by_winner():
                 pass
 
 
+def test_export_transcript_html():
+    print("=== TEST 26: Export Transcript to HTML ===")
+    orch = DebateOrchestrator(topic="Remote work is better than office work", total_rounds=1)
+    empty_html = orch.export_transcript_html()
+    assert "<!DOCTYPE html>" in empty_html
+    assert "No arguments recorded yet." in empty_html
+    assert "Remote work is better than office work" in empty_html
+
+    orch.transcript.append({"speaker": "A", "round": 1, "text": "Remote work saves commute time."})
+    orch.transcript.append({"speaker": "B", "round": 1, "text": "Office work fosters team bonding."})
+    orch.revealed_verdict = {
+        "winner": "A",
+        "user_vote": "A",
+        "agreed_with_ai": True,
+        "reasoning": "Debater A had stronger time efficiency evidence."
+    }
+    full_html = orch.export_transcript_html()
+    assert "<!DOCTYPE html>" in full_html
+    assert "speaker-a" in full_html
+    assert "speaker-b" in full_html
+    assert "Remote work saves commute time." in full_html
+    assert "Office work fosters team bonding." in full_html
+    assert "Official Verdict" in full_html
+    assert "Debater A had stronger time efficiency evidence." in full_html
+    print("✓ Confirmed: HTML transcript export generates valid, styled HTML document.")
+    print("=== TEST 26 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -834,6 +862,7 @@ if __name__ == "__main__":
     test_estimate_token_count()
     test_get_debater_stance()
     test_filter_debates_by_winner()
+    test_export_transcript_html()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
