@@ -837,6 +837,25 @@ def test_export_transcript_html():
     print("=== TEST 26 PASSED ===\n")
 
 
+def test_export_transcript_csv():
+    print("=== TEST 27: Export Transcript to CSV ===")
+    orch = DebateOrchestrator(topic="Cats make better pets than dogs", total_rounds=1)
+    empty_csv = orch.export_transcript_csv()
+    assert "round,speaker,stance,word_count,text" in empty_csv
+    assert len(empty_csv.splitlines()) == 1
+
+    orch.transcript.append({"speaker": "A", "round": 1, "text": "Cats are clean and quiet."})
+    orch.transcript.append({"speaker": "B", "round": 1, "text": "Dogs provide loyal companionship and protection."})
+    full_csv = orch.export_transcript_csv()
+    lines = full_csv.splitlines()
+    assert len(lines) == 3
+    assert lines[0] == "round,speaker,stance,word_count,text"
+    assert "1,A,FOR,5,Cats are clean and quiet." in lines[1]
+    assert "1,B,AGAINST,6,Dogs provide loyal companionship and protection." in lines[2]
+    print("✓ Confirmed: CSV transcript export generates clean tabular speech records.")
+    print("=== TEST 27 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -863,6 +882,7 @@ if __name__ == "__main__":
     test_get_debater_stance()
     test_filter_debates_by_winner()
     test_export_transcript_html()
+    test_export_transcript_csv()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
