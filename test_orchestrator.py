@@ -1013,6 +1013,25 @@ def test_get_history_summary_report():
                 pass
 
 
+def test_debate_duration_tracking():
+    print("=== TEST 33: Debate Duration Tracking ===")
+    orch = DebateOrchestrator(topic="Duration measurement test", total_rounds=1)
+    assert orch.start_time is not None
+    assert orch.end_time is None
+    dur_initial = orch.get_duration_seconds()
+    assert dur_initial >= 0.0
+
+    orch._judge_verdict = {"winner": "A", "scores": {}, "reasoning": "Quick"}
+    orch.submit_user_vote("A")
+    assert orch.end_time is not None
+    dur_final = orch.get_duration_seconds()
+    assert dur_final >= dur_initial
+
+    print("✓ Confirmed: Debate duration tracking records session timings accurately.")
+    print("=== TEST 33 PASSED ===\n")
+
+
+
 
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
@@ -1046,6 +1065,7 @@ if __name__ == "__main__":
     test_search_preset_topics()
     test_get_round_exchanges()
     test_get_history_summary_report()
+    test_debate_duration_tracking()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
