@@ -25,6 +25,7 @@ from orchestrator import (
     calculate_lexical_diversity,
     get_history_summary_report,
     get_winning_margin,
+    validate_preset_topic,
 )
 
 if sys.platform == "win32":
@@ -1057,6 +1058,22 @@ def test_get_winning_margin():
     print("=== TEST 34 PASSED ===\n")
 
 
+def test_validate_preset_topic():
+    print("=== TEST 35: Validate Preset Topic ===")
+    assert not validate_preset_topic("")
+    assert not validate_preset_topic("Too short")
+    assert not validate_preset_topic("   ")
+    assert not validate_preset_topic("   !!!   ")
+    assert not validate_preset_topic("a" * 201)
+
+    assert validate_preset_topic("Should renewable energy replace coal entirely?")
+    assert validate_preset_topic("Remote work is superior to in-office work.")
+
+    print("✓ Confirmed: validate_preset_topic enforces clean topic quality standards.")
+    print("=== TEST 35 PASSED ===\n")
+
+
+
 
 
 
@@ -1094,6 +1111,7 @@ if __name__ == "__main__":
     test_get_history_summary_report()
     test_debate_duration_tracking()
     test_get_winning_margin()
+    test_validate_preset_topic()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
