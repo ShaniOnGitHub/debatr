@@ -873,3 +873,35 @@ def filter_debates_by_winner(winner: str) -> List[Dict[str, Any]]:
         return []
 
 
+def filter_debates_by_date(start_date: Optional[str] = None, end_date: Optional[str] = None) -> List[Dict[str, Any]]:
+    """
+    Returns past debates recorded within a specific date range.
+    Accepts date strings like '2026-09-27' or full ISO timestamps.
+    """
+    history_file = get_history_file()
+    if not os.path.exists(history_file):
+        return []
+    try:
+        with open(history_file, "r", encoding="utf-8") as f:
+            history = json.load(f)
+            if not isinstance(history, list):
+                return []
+    except Exception:
+        return []
+
+    results = []
+    for item in history:
+        if not isinstance(item, dict):
+            continue
+        ts = item.get("timestamp")
+        if not ts or not isinstance(ts, str):
+            continue
+        if start_date and ts[:len(start_date)] < start_date:
+            continue
+        if end_date and ts[:len(end_date)] > end_date:
+            continue
+        results.append(item)
+    return results
+
+
+
