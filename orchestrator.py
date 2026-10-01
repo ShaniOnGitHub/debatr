@@ -251,6 +251,8 @@ class DebateOrchestrator:
         self.user_vote: Optional[str] = None
         self.revealed_verdict: Optional[Dict[str, Any]] = None
         self.completed = False
+        self.start_time = datetime.datetime.now(datetime.timezone.utc)
+        self.end_time: Optional[datetime.datetime] = None
 
     @property
     def status(self) -> str:
@@ -303,6 +305,14 @@ class DebateOrchestrator:
                 "debater_b": rounds_dict[r]["debater_b"],
             })
         return exchanges
+
+    def get_duration_seconds(self) -> float:
+        """
+        Returns elapsed debate duration in seconds.
+        Measures from orchestrator creation until completion or current time.
+        """
+        finish = self.end_time or datetime.datetime.now(datetime.timezone.utc)
+        return round((finish - self.start_time).total_seconds(), 2)
 
     def get_stance(self, speaker: str) -> str:
         """Returns the debater's assigned stance for this debate's topic."""
@@ -516,6 +526,7 @@ class DebateOrchestrator:
             "agreed_with_ai": agreed
         }
         self.completed = True
+        self.end_time = datetime.datetime.now(datetime.timezone.utc)
         
         # Persist to history
         self._persist_history(agreed)
