@@ -21,6 +21,7 @@ from orchestrator import (
     get_debater_stance,
     filter_debates_by_winner,
     filter_debates_by_date,
+    calculate_lexical_diversity,
 )
 
 if sys.platform == "win32":
@@ -901,6 +902,26 @@ def test_filter_debates_by_date():
                 pass
 
 
+def test_calculate_lexical_diversity():
+    print("=== TEST 29: Calculate Lexical Diversity ===")
+    assert calculate_lexical_diversity("") == 0.0
+    assert calculate_lexical_diversity("   ") == 0.0
+
+    all_unique = "Cats are very clean"
+    assert calculate_lexical_diversity(all_unique) == 1.0
+
+    repeated = "Cats dogs Cats dogs"
+    assert calculate_lexical_diversity(repeated) == 0.5
+
+    orch = DebateOrchestrator(topic="Diversity check", total_rounds=1)
+    orch.transcript.append({"speaker": "A", "round": 1, "text": "Clear logic wins debates."})
+    orch.transcript.append({"speaker": "B", "round": 1, "text": "No no no no."})
+    metrics = orch.get_speech_metrics()
+    assert metrics["lexical_diversity_a"] == 1.0
+    assert metrics["lexical_diversity_b"] == 0.25
+    print("✓ Confirmed: Lexical diversity calculates accurate vocabulary richness ratios.")
+    print("=== TEST 29 PASSED ===\n")
+
 
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
@@ -930,6 +951,7 @@ if __name__ == "__main__":
     test_export_transcript_html()
     test_export_transcript_csv()
     test_filter_debates_by_date()
+    test_calculate_lexical_diversity()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
