@@ -3,6 +3,8 @@ import json
 import uuid
 import datetime
 import html
+import csv
+import io
 from typing import Generator, Dict, Any, List, Optional
 import requests
 
@@ -632,6 +634,24 @@ h1 {{ color: #111; font-size: 1.6rem; border-bottom: 2px solid #e0e0e0; padding-
 </body>
 </html>"""
         return html_output
+
+    def export_transcript_csv(self) -> str:
+        """
+        Exports the debate speeches in comma-separated values (CSV) format
+        for spreadsheet viewing and quantitative analysis.
+        """
+        output = io.StringIO()
+        writer = csv.writer(output, lineterminator="\n")
+        writer.writerow(["round", "speaker", "stance", "word_count", "text"])
+        for entry in self.transcript:
+            speaker = entry.get("speaker", "A")
+            round_num = entry.get("round", 1)
+            text = entry.get("text", "")
+            stance = "FOR" if str(speaker).upper() == "A" else "AGAINST"
+            word_count = len(text.split())
+            writer.writerow([round_num, speaker, stance, word_count, text])
+        return output.getvalue().strip()
+
 
 
 
