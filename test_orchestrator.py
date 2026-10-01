@@ -20,6 +20,7 @@ from orchestrator import (
     estimate_token_count,
     get_debater_stance,
     filter_debates_by_winner,
+    filter_debates_by_date,
 )
 
 if sys.platform == "win32":
@@ -856,6 +857,51 @@ def test_export_transcript_csv():
     print("=== TEST 27 PASSED ===\n")
 
 
+def test_filter_debates_by_date():
+    print("=== TEST 28: Filter Debates By Date ===")
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+    try:
+        sample_records = [
+            {"id": "d1", "timestamp": "2026-09-20T10:00:00+00:00", "topic": "Past Topic"},
+            {"id": "d2", "timestamp": "2026-09-25T14:30:00+00:00", "topic": "Middle Topic"},
+            {"id": "d3", "timestamp": "2026-10-01T09:15:00+00:00", "topic": "Current Topic"},
+        ]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(sample_records, f)
+
+        all_res = filter_debates_by_date()
+        assert len(all_res) == 3
+
+        after_24 = filter_debates_by_date(start_date="2026-09-24")
+        assert len(after_24) == 2
+        assert [r["id"] for r in after_24] == ["d2", "d3"]
+
+        before_26 = filter_debates_by_date(end_date="2026-09-26")
+        assert len(before_26) == 2
+        assert [r["id"] for r in before_26] == ["d1", "d2"]
+
+        exact_range = filter_debates_by_date(start_date="2026-09-21", end_date="2026-09-30")
+        assert len(exact_range) == 1
+        assert exact_range[0]["id"] == "d2"
+
+        print("✓ Confirmed: filter_debates_by_date correctly filters records by timestamp ranges.")
+        print("=== TEST 28 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -883,6 +929,7 @@ if __name__ == "__main__":
     test_filter_debates_by_winner()
     test_export_transcript_html()
     test_export_transcript_csv()
+    test_filter_debates_by_date()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
