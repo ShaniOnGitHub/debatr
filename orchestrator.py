@@ -1025,4 +1025,20 @@ def filter_debates_by_date(start_date: Optional[str] = None, end_date: Optional[
     return results
 
 
+def get_winning_margin(verdict: Dict[str, Any]) -> int:
+    """
+    Calculates the point difference between Debater A and Debater B from judge scores.
+    Returns 0 if scores are missing or equal.
+    """
+    if not isinstance(verdict, dict):
+        return 0
+    scores = verdict.get("scores")
+    if not isinstance(scores, dict):
+        return 0
+    score_a = scores.get("A", {}).get("total", 0) if isinstance(scores.get("A"), dict) else 0
+    score_b = scores.get("B", {}).get("total", 0) if isinstance(scores.get("B"), dict) else 0
+    return abs(int(score_a) - int(score_b))
+
+
+
 
