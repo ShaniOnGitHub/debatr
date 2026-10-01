@@ -5,6 +5,7 @@ import datetime
 import html
 import csv
 import io
+import re
 from typing import Generator, Dict, Any, List, Optional
 import requests
 
@@ -186,6 +187,20 @@ def estimate_token_count(text: str) -> int:
     return max(1, round(len(text.strip()) / 4.0))
 
 
+def calculate_lexical_diversity(text: str) -> float:
+    """
+    Measures vocabulary richness as the ratio of unique words to total words.
+    Returns a float rounded to three decimal places between 0.0 and 1.0.
+    """
+    if not isinstance(text, str) or not text.strip():
+        return 0.0
+    words = re.findall(r"\b\w+\b", text.lower())
+    if not words:
+        return 0.0
+    return round(len(set(words)) / len(words), 3)
+
+
+
 def get_debater_stance(speaker: str, topic: str) -> str:
     """Returns a clear explanation of the debater's assigned stance."""
     normalized = str(speaker).strip().upper()
@@ -275,6 +290,12 @@ class DebateOrchestrator:
         total_tokens = tokens_a + tokens_b
         total_turns = turns_a + turns_b
         avg_words = round(total_words / total_turns, 1) if total_turns > 0 else 0.0
+
+        all_text_a = " ".join(e.get("text", "") for e in self.transcript if e.get("speaker") == "A")
+        all_text_b = " ".join(e.get("text", "") for e in self.transcript if e.get("speaker") == "B")
+        lex_a = calculate_lexical_diversity(all_text_a)
+        lex_b = calculate_lexical_diversity(all_text_b)
+
         return {
             "words_a": words_a,
             "words_b": words_b,
@@ -285,6 +306,8 @@ class DebateOrchestrator:
             "total_words": total_words,
             "total_tokens": total_tokens,
             "avg_words_per_turn": avg_words,
+            "lexical_diversity_a": lex_a,
+            "lexical_diversity_b": lex_b,
         }
 
     def _build_debater_messages(self, speaker: str, round_num: int) -> List[Dict[str, str]]:
