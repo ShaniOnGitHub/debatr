@@ -61,6 +61,22 @@ def get_topics_for_category(category: str) -> List[str]:
     return PRESET_TOPICS.get(category, [])
 
 
+def search_preset_topics(query: str = "") -> List[Dict[str, str]]:
+    """
+    Searches preset debate topics across all categories by keyword.
+    Returns a list of matching records containing 'category' and 'topic'.
+    """
+    if not isinstance(query, str):
+        return []
+    clean_query = query.strip().lower()
+    matches = []
+    for category, topics in PRESET_TOPICS.items():
+        for topic in topics:
+            if not clean_query or clean_query in topic.lower() or clean_query in category.lower():
+                matches.append({"category": category, "topic": topic})
+    return matches
+
+
 def get_history_file() -> str:
     """Returns the path to the history file, allowing override via DEBATR_HISTORY_FILE."""
     return os.environ.get("DEBATR_HISTORY_FILE") or DEFAULT_HISTORY_FILE
