@@ -1040,5 +1040,19 @@ def get_winning_margin(verdict: Dict[str, Any]) -> int:
     return abs(int(score_a) - int(score_b))
 
 
+def validate_preset_topic(topic: str) -> bool:
+    """
+    Checks if a debate topic meets basic length and clarity standards.
+    Returns True if the topic has between 10 and 200 printable characters.
+    """
+    if not isinstance(topic, str):
+        return False
+    cleaned = topic.strip()
+    if len(cleaned) < 10 or len(cleaned) > 200:
+        return False
+    return any(c.isalnum() for c in cleaned)
+
+
+
 
 
