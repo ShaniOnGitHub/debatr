@@ -2,6 +2,7 @@ import os
 import json
 import uuid
 import datetime
+import html
 from typing import Generator, Dict, Any, List, Optional
 import requests
 
@@ -561,6 +562,77 @@ class DebateOrchestrator:
             lines.append("")
             
         return "\n".join(lines).strip()
+
+    def export_transcript_html(self) -> str:
+        """
+        Exports the debate transcript as a self-contained HTML page
+        with styling for web viewing and sharing.
+        """
+        escaped_topic = html.escape(self.topic)
+        escaped_id = html.escape(self.id)
+        
+        cards = []
+        if not self.transcript:
+            cards.append("<p class='empty'>No arguments recorded yet.</p>")
+        else:
+            for entry in self.transcript:
+                speaker = entry.get("speaker", "A")
+                round_num = entry.get("round", 1)
+                text = html.escape(entry.get("text", ""))
+                speaker_title = "Debater A (FOR)" if speaker == "A" else "Debater B (AGAINST)"
+                css_class = "speaker-a" if speaker == "A" else "speaker-b"
+                cards.append(
+                    f"<div class='speech-card {css_class}'>"
+                    f"<h3>Round {round_num} - {speaker_title}</h3>"
+                    f"<p>{text}</p>"
+                    f"</div>"
+                )
+        
+        verdict_section = ""
+        if self.revealed_verdict:
+            winner = html.escape(str(self.revealed_verdict.get("winner", "")))
+            user_vote = html.escape(str(self.revealed_verdict.get("user_vote", "")))
+            agreed = "Yes" if self.revealed_verdict.get("agreed_with_ai") else "No"
+            reasoning = html.escape(str(self.revealed_verdict.get("reasoning", "")))
+            verdict_section = (
+                f"<section class='verdict-card'>"
+                f"<h2>Official Verdict</h2>"
+                f"<p><strong>Winner:</strong> Debater {winner}</p>"
+                f"<p><strong>User Vote:</strong> Debater {user_vote}</p>"
+                f"<p><strong>User Agreed With Judge:</strong> {agreed}</p>"
+                f"<p><strong>Judge Reasoning:</strong> {reasoning}</p>"
+                f"</section>"
+            )
+
+        html_output = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Debate: {escaped_topic}</title>
+<style>
+body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 800px; margin: 0 auto; padding: 24px; color: #222; background: #fafafa; }}
+h1 {{ color: #111; font-size: 1.6rem; border-bottom: 2px solid #e0e0e0; padding-bottom: 12px; }}
+.meta {{ color: #666; font-size: 0.9rem; margin-bottom: 20px; }}
+.speech-card {{ background: #fff; border-radius: 8px; padding: 16px 20px; margin-bottom: 16px; border-left: 5px solid #ccc; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }}
+.speaker-a {{ border-left-color: #2563eb; }}
+.speaker-b {{ border-left-color: #dc2626; }}
+.speech-card h3 {{ margin-top: 0; font-size: 1.1rem; color: #333; }}
+.speech-card p {{ line-height: 1.6; margin-bottom: 0; }}
+.verdict-card {{ background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 20px; margin-top: 24px; }}
+.verdict-card h2 {{ margin-top: 0; color: #166534; }}
+</style>
+</head>
+<body>
+<h1>{escaped_topic}</h1>
+<div class="meta">Debate ID: {escaped_id} | Total Rounds: {self.total_rounds}</div>
+<main>
+{''.join(cards)}
+</main>
+{verdict_section}
+</body>
+</html>"""
+        return html_output
+
 
 
 
