@@ -1053,6 +1053,45 @@ def validate_preset_topic(topic: str) -> bool:
     return any(c.isalnum() for c in cleaned)
 
 
+def prune_history(keep_count: int, backup_first: bool = True) -> int:
+    """
+    Retains only the most recent debates in the history file, removing older records.
+    Optionally creates a backup before pruning. Returns the number of removed records.
+    """
+    if not isinstance(keep_count, int) or keep_count < 0:
+        raise ValueError("keep_count must be a non-negative integer.")
+
+    history_file = get_history_file()
+    if not os.path.exists(history_file):
+        return 0
+
+    try:
+        with open(history_file, "r", encoding="utf-8") as f:
+            history = json.load(f)
+            if not isinstance(history, list):
+                return 0
+    except Exception:
+        return 0
+
+    total_records = len(history)
+    if total_records <= keep_count:
+        return 0
+
+    if backup_first:
+        backup_history()
+
+    pruned_count = total_records - keep_count
+    kept_history = history[-keep_count:] if keep_count > 0 else []
+
+    try:
+        with open(history_file, "w", encoding="utf-8") as f:
+            json.dump(kept_history, f, indent=2)
+        return pruned_count
+    except Exception:
+        return 0
+
+
+
 
 
 
