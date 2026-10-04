@@ -77,6 +77,31 @@ def search_preset_topics(query: str = "") -> List[Dict[str, str]]:
     return matches
 
 
+def register_preset_topic(category: str, topic: str) -> bool:
+    """
+    Registers a new proposition into PRESET_TOPICS under the given category.
+    Validates topic quality and ensures duplicates are not added. Returns True if added.
+    """
+    if not isinstance(category, str) or not category.strip():
+        return False
+    if not validate_preset_topic(topic):
+        return False
+
+    clean_category = category.strip()
+    clean_topic = topic.strip()
+
+    if clean_category not in PRESET_TOPICS:
+        PRESET_TOPICS[clean_category] = []
+
+    for existing in PRESET_TOPICS[clean_category]:
+        if existing.strip().lower() == clean_topic.lower():
+            return False
+
+    PRESET_TOPICS[clean_category].append(clean_topic)
+    return True
+
+
+
 def get_history_file() -> str:
     """Returns the path to the history file, allowing override via DEBATR_HISTORY_FILE."""
     return os.environ.get("DEBATR_HISTORY_FILE") or DEFAULT_HISTORY_FILE
