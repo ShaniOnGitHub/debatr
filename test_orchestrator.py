@@ -27,6 +27,7 @@ from orchestrator import (
     get_winning_margin,
     validate_preset_topic,
     prune_history,
+    calculate_readability_score,
 )
 
 if sys.platform == "win32":
@@ -1117,6 +1118,33 @@ def test_prune_history():
                 pass
 
 
+def test_calculate_readability_score():
+    print("=== TEST 37: Calculate Readability Score ===")
+    assert calculate_readability_score("") == 0.0
+    assert calculate_readability_score("   ") == 0.0
+
+    simple_text = "Cats are great pets. Dogs are loyal and friendly."
+    complex_text = "Inordinately disproportionate socio-economic industrialization precipitates infrastructural repercussions."
+
+    score_simple = calculate_readability_score(simple_text)
+    score_complex = calculate_readability_score(complex_text)
+
+    assert score_simple > score_complex
+    assert 0.0 <= score_simple <= 100.0
+    assert 0.0 <= score_complex <= 100.0
+
+    orch = DebateOrchestrator(topic="Readability testing", total_rounds=1)
+    orch.transcript.append({"speaker": "A", "round": 1, "text": simple_text})
+    orch.transcript.append({"speaker": "B", "round": 1, "text": complex_text})
+    metrics = orch.get_speech_metrics()
+    assert metrics["readability_a"] == score_simple
+    assert metrics["readability_b"] == score_complex
+
+    print("✓ Confirmed: calculate_readability_score scores plain language higher than dense prose.")
+    print("=== TEST 37 PASSED ===\n")
+
+
+
 
 
 
@@ -1158,6 +1186,7 @@ if __name__ == "__main__":
     test_get_winning_margin()
     test_validate_preset_topic()
     test_prune_history()
+    test_calculate_readability_score()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
