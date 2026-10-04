@@ -1121,6 +1121,55 @@ def prune_history(keep_count: int, backup_first: bool = True) -> int:
         return 0
 
 
+def export_history_csv(output_path: Optional[str] = None) -> str:
+    """
+    Exports all past debate records from the history file into CSV format.
+    Optionally writes to output_path. Returns the CSV string.
+    """
+    history_file = get_history_file()
+    records = []
+    if os.path.exists(history_file):
+        try:
+            with open(history_file, "r", encoding="utf-8") as f:
+                loaded = json.load(f)
+                if isinstance(loaded, list):
+                    records = loaded
+        except Exception:
+            records = []
+
+    out = io.StringIO()
+    writer = csv.writer(out, lineterminator="\n")
+    writer.writerow(["id", "timestamp", "topic", "rounds", "user_vote", "judge_winner", "agreed", "score_a", "score_b"])
+
+    for item in records:
+        if not isinstance(item, dict):
+            continue
+        scores = item.get("scores") or {}
+        score_a = scores.get("A", {}).get("total", "") if isinstance(scores.get("A"), dict) else ""
+        score_b = scores.get("B", {}).get("total", "") if isinstance(scores.get("B"), dict) else ""
+        writer.writerow([
+            item.get("id", ""),
+            item.get("timestamp", ""),
+            item.get("topic", ""),
+            item.get("rounds", ""),
+            item.get("user_vote", ""),
+            item.get("judge_winner", ""),
+            item.get("agreed", ""),
+            score_a,
+            score_b,
+        ])
+
+    csv_data = out.getvalue().strip()
+    if output_path and isinstance(output_path, str) and output_path.strip():
+        target = os.path.abspath(output_path.strip())
+        os.makedirs(os.path.dirname(target), exist_ok=True)
+        with open(target, "w", encoding="utf-8") as f:
+            f.write(csv_data)
+
+    return csv_data
+
+
+
 
 
 
