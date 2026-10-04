@@ -29,6 +29,7 @@ from orchestrator import (
     prune_history,
     calculate_readability_score,
     export_history_csv,
+    register_preset_topic,
 )
 
 if sys.platform == "win32":
@@ -1203,11 +1204,21 @@ def test_export_history_csv():
                 pass
 
 
+def test_register_preset_topic():
+    print("=== TEST 39: Register Preset Topic ===")
+    assert not register_preset_topic("", "Valid proposition for testing debate.")
+    assert not register_preset_topic("Custom Cat", "Too short")
 
+    success = register_preset_topic("Philosophy", "Does free will exist in a deterministic universe?")
+    assert success is True
+    assert "Philosophy" in PRESET_TOPICS
+    assert "Does free will exist in a deterministic universe?" in PRESET_TOPICS["Philosophy"]
 
+    duplicate = register_preset_topic("Philosophy", "Does free will exist in a deterministic universe?")
+    assert duplicate is False
 
-
-
+    print("✓ Confirmed: register_preset_topic dynamically adds propositions without duplicates.")
+    print("=== TEST 39 PASSED ===\n")
 
 
 if __name__ == "__main__":
@@ -1248,6 +1259,7 @@ if __name__ == "__main__":
     test_prune_history()
     test_calculate_readability_score()
     test_export_history_csv()
+    test_register_preset_topic()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
