@@ -26,6 +26,7 @@ from orchestrator import (
     get_history_summary_report,
     get_winning_margin,
     validate_preset_topic,
+    prune_history,
 )
 
 if sys.platform == "win32":
@@ -1073,6 +1074,50 @@ def test_validate_preset_topic():
     print("=== TEST 35 PASSED ===\n")
 
 
+def test_prune_history():
+    print("=== TEST 36: Prune History Utility ===")
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+    try:
+        sample_records = [
+            {"id": "d1", "topic": "Oldest Topic 1"},
+            {"id": "d2", "topic": "Older Topic 2"},
+            {"id": "d3", "topic": "Recent Topic 3"},
+            {"id": "d4", "topic": "Newest Topic 4"},
+        ]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(sample_records, f)
+
+        # Prune to keep 2 newest without creating backup file
+        removed = prune_history(keep_count=2, backup_first=False)
+        assert removed == 2
+
+        with open(temp_path, "r", encoding="utf-8") as f:
+            kept = json.load(f)
+        assert len(kept) == 2
+        assert kept[0]["id"] == "d3"
+        assert kept[1]["id"] == "d4"
+
+        # Prune with keep_count greater than current length does nothing
+        assert prune_history(keep_count=10, backup_first=False) == 0
+
+        print("✓ Confirmed: prune_history safely retains newest records and removes older history.")
+        print("=== TEST 36 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
+
 
 
 
@@ -1112,6 +1157,7 @@ if __name__ == "__main__":
     test_debate_duration_tracking()
     test_get_winning_margin()
     test_validate_preset_topic()
+    test_prune_history()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
