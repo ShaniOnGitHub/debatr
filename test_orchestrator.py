@@ -28,6 +28,7 @@ from orchestrator import (
     validate_preset_topic,
     prune_history,
     calculate_readability_score,
+    export_history_csv,
 )
 
 if sys.platform == "win32":
@@ -1144,6 +1145,65 @@ def test_calculate_readability_score():
     print("=== TEST 37 PASSED ===\n")
 
 
+def test_export_history_csv():
+    print("=== TEST 38: Export History to CSV ===")
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+    try:
+        # Empty history
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump([], f)
+        empty_csv = export_history_csv()
+        assert "id,timestamp,topic,rounds,user_vote,judge_winner,agreed,score_a,score_b" in empty_csv
+        assert len(empty_csv.splitlines()) == 1
+
+        mock_data = [
+            {
+                "id": "h1",
+                "timestamp": "2026-10-04T12:00:00+00:00",
+                "topic": "AI Personhood",
+                "rounds": 2,
+                "user_vote": "A",
+                "judge_winner": "A",
+                "agreed": True,
+                "scores": {"A": {"total": 26}, "B": {"total": 21}},
+            }
+        ]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(mock_data, f)
+
+        csv_out = export_history_csv()
+        lines = csv_out.splitlines()
+        assert len(lines) == 2
+        assert "h1,2026-10-04T12:00:00+00:00,AI Personhood,2,A,A,True,26,21" in lines[1]
+
+        # Test writing to file
+        with tempfile.NamedTemporaryFile(suffix=".csv", delete=False) as cf:
+            out_file = cf.name
+        export_history_csv(output_path=out_file)
+        with open(out_file, "r", encoding="utf-8") as f:
+            content = f.read()
+        assert "AI Personhood" in content
+        if os.path.exists(out_file):
+            os.remove(out_file)
+
+        print("✓ Confirmed: export_history_csv exports all debate records in clean CSV format.")
+        print("=== TEST 38 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
+
 
 
 
@@ -1187,6 +1247,7 @@ if __name__ == "__main__":
     test_validate_preset_topic()
     test_prune_history()
     test_calculate_readability_score()
+    test_export_history_csv()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
