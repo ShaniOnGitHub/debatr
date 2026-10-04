@@ -216,6 +216,32 @@ def calculate_lexical_diversity(text: str) -> float:
     return round(len(set(words)) / len(words), 3)
 
 
+def calculate_readability_score(text: str) -> float:
+    """
+    Evaluates text readability on a 0-100 scale, where higher scores represent
+    clearer, more accessible writing. Considers sentence length and word length.
+    """
+    if not isinstance(text, str) or not text.strip():
+        return 0.0
+
+    raw_sentences = [s.strip() for s in re.split(r"[.!?]+", text) if s.strip()]
+    num_sentences = max(1, len(raw_sentences))
+
+    words = re.findall(r"\b\w+\b", text)
+    if not words:
+        return 0.0
+
+    num_words = len(words)
+    total_chars = sum(len(w) for w in words)
+
+    avg_sentence_len = num_words / num_sentences
+    avg_word_len = total_chars / num_words
+
+    raw_score = 120.0 - (avg_sentence_len * 1.2) - (avg_word_len * 10.0)
+    return round(max(0.0, min(100.0, raw_score)), 1)
+
+
+
 
 def get_debater_stance(speaker: str, topic: str) -> str:
     """Returns a clear explanation of the debater's assigned stance."""
@@ -347,6 +373,8 @@ class DebateOrchestrator:
         all_text_b = " ".join(e.get("text", "") for e in self.transcript if e.get("speaker") == "B")
         lex_a = calculate_lexical_diversity(all_text_a)
         lex_b = calculate_lexical_diversity(all_text_b)
+        read_a = calculate_readability_score(all_text_a)
+        read_b = calculate_readability_score(all_text_b)
 
         return {
             "words_a": words_a,
@@ -360,6 +388,8 @@ class DebateOrchestrator:
             "avg_words_per_turn": avg_words,
             "lexical_diversity_a": lex_a,
             "lexical_diversity_b": lex_b,
+            "readability_a": read_a,
+            "readability_b": read_b,
         }
 
     def _build_debater_messages(self, speaker: str, round_num: int) -> List[Dict[str, str]]:
