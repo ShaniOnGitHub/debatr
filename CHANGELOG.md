@@ -4,6 +4,17 @@ All notable changes to the Debatr project are documented in this file.
 
 ---
 
+## [1.5.0] - 2026-10-04
+
+### Added
+- **History Pruning Utility**: Added `prune_history()` to safely retain recent records and archive older debates.
+- **Readability Scoring**: Added `calculate_readability_score()` and integrated accessibility metrics into speech analysis.
+- **Aggregate CSV Export**: Added `export_history_csv()` to export the entire debate history to spreadsheet-compatible CSV.
+- **Dynamic Topic Registration**: Added `register_preset_topic()` to allow runtime registration of custom debate propositions.
+- **Expanded Test Suite**: Added 4 comprehensive unit tests, bringing automated test coverage to 39 verified test scenarios.
+
+---
+
 ## [1.4.0] - 2026-10-01
 
 ### Added

@@ -11,10 +11,10 @@
 - **The Secret AI Judge**: The judge automatically scores the debate on *Logical Consistency*, *Evidence & Substantiation*, and *Rebuttal Engagement*. The verdict is strictly kept confidential until the user votes.
 - **Vote & Reveal**: Cast your ballot to unlock the judge's score card, criteria breakdown, and analytical reasoning.
 - **Cumulative Agreement Rate**: Tracks your alignment with the AI judge across all debates.
-- **Flexible Export Options**: Download complete debate transcripts as formatted Markdown (`.md`), structured JSON (`.json`), styled HTML (`.html`), tabular CSV (`.csv`), or clean plain text.
-- **Categorized Topic Presets**: Get started quickly with curated debate prompts across Technology, Society, and Science, or search them with `search_preset_topics()`.
-- **Debate History Management**: Search past debates by keyword, filter records by winner or date range, and create timestamped backups with `backup_history()`.
-- **Slug Generation & Speech Metrics**: Generate clean, filesystem-safe debate filenames, calculate lexical diversity, and estimate token/word counts per debater.
+- **Flexible Export Options**: Download debate transcripts as formatted Markdown (`.md`), structured JSON (`.json`), styled HTML (`.html`), tabular CSV (`.csv`), or plain text. Export full history with `export_history_csv()`.
+- **Topic Presets & Custom Topics**: Choose from curated debate prompts across Technology, Society, and Science, search presets with `search_preset_topics()`, or register custom topics with `register_preset_topic()`.
+- **Debate History Management**: Search debates by keyword, filter by winner or date range, prune old records with `prune_history()`, and create backups with `backup_history()`.
+- **Speech Metrics & Readability**: Compute lexical diversity, estimate tokens, and evaluate language accessibility using `calculate_readability_score()`.
 - **Minimal, Modern UI**: Built with Streamlit with an in-page configuration panel, preset topics, and a live statistics banner.
 
 ---
