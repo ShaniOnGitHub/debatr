@@ -1285,6 +1285,33 @@ def get_head_to_head_record() -> Dict[str, Any]:
     }
 
 
+def count_unique_topics() -> int:
+    """
+    Counts the number of distinct debate topics recorded in history.
+    Each unique topic string is counted once, regardless of how many times
+    it has been debated. Returns 0 if the history file does not exist or is empty.
+    """
+    history_file = get_history_file()
+    if not os.path.exists(history_file):
+        return 0
+    try:
+        with open(history_file, "r", encoding="utf-8") as f:
+            history = json.load(f)
+            if not isinstance(history, list):
+                return 0
+    except Exception:
+        return 0
+
+    seen: set = set()
+    for record in history:
+        if isinstance(record, dict):
+            topic = record.get("topic", "")
+            if topic and isinstance(topic, str):
+                seen.add(topic.strip().lower())
+    return len(seen)
+
+
+
 
 
 
