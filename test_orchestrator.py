@@ -34,6 +34,7 @@ from orchestrator import (
     get_longest_speech,
     get_head_to_head_record,
     count_unique_topics,
+    get_most_common_winner,
 )
 
 if sys.platform == "win32":
@@ -1350,6 +1351,52 @@ def test_count_unique_topics():
                 pass
 
 
+def test_get_most_common_winner():
+    print("=== TEST 44: Get Most Common Winner Utility ===")
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+
+    try:
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump([], f)
+        assert get_most_common_winner() is None
+
+        sample = [
+            {"id": "1", "judge_winner": "A"},
+            {"id": "2", "judge_winner": "A"},
+            {"id": "3", "judge_winner": "B"},
+        ]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(sample, f)
+        assert get_most_common_winner() == "A"
+
+        sample.append({"id": "4", "judge_winner": "B"})
+        sample.append({"id": "5", "judge_winner": "B"})
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(sample, f)
+        assert get_most_common_winner() == "B"
+
+        tied = [{"id": "1", "judge_winner": "A"}, {"id": "2", "judge_winner": "B"}]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(tied, f)
+        assert get_most_common_winner() == "Tied"
+
+        print("✓ Confirmed: get_most_common_winner correctly identifies the dominant debater.")
+        print("=== TEST 44 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -1393,6 +1440,7 @@ if __name__ == "__main__":
     test_get_longest_speech()
     test_get_head_to_head_record()
     test_count_unique_topics()
+    test_get_most_common_winner()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
