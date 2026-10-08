@@ -30,6 +30,7 @@ from orchestrator import (
     calculate_readability_score,
     export_history_csv,
     register_preset_topic,
+    calculate_speaking_pace,
 )
 
 if sys.platform == "win32":
@@ -1221,6 +1222,21 @@ def test_register_preset_topic():
     print("=== TEST 39 PASSED ===\n")
 
 
+def test_calculate_speaking_pace():
+    print("=== TEST 40: Calculate Speaking Pace Utility ===")
+    assert calculate_speaking_pace(150, 60.0) == 150.0
+    assert calculate_speaking_pace(75, 30.0) == 150.0
+    assert calculate_speaking_pace(200, 120.0) == 100.0
+    assert calculate_speaking_pace(0, 60.0) == 0.0
+    assert calculate_speaking_pace(100, 0) == 0.0
+    assert calculate_speaking_pace(100, -5) == 0.0
+    assert calculate_speaking_pace(-10, 60.0) == 0.0
+    assert calculate_speaking_pace("invalid", 60.0) == 0.0
+
+    print("✓ Confirmed: calculate_speaking_pace accurately computes words per minute.")
+    print("=== TEST 40 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -1260,6 +1276,7 @@ if __name__ == "__main__":
     test_calculate_readability_score()
     test_export_history_csv()
     test_register_preset_topic()
+    test_calculate_speaking_pace()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
