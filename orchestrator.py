@@ -1311,6 +1311,37 @@ def count_unique_topics() -> int:
     return len(seen)
 
 
+def get_most_common_winner() -> Optional[str]:
+    """
+    Returns which debater — 'A' (the supporting side) or 'B' (the opposing side) —
+    has won the most debates according to the judge, based on history records.
+    Returns None if no history exists or there are no recorded winners.
+    Returns 'Tied' if both debaters share the same number of wins.
+    """
+    history_file = get_history_file()
+    if not os.path.exists(history_file):
+        return None
+    try:
+        with open(history_file, "r", encoding="utf-8") as f:
+            history = json.load(f)
+            if not isinstance(history, list):
+                return None
+    except Exception:
+        return None
+
+    wins_a = sum(1 for r in history if isinstance(r, dict) and r.get("judge_winner") == "A")
+    wins_b = sum(1 for r in history if isinstance(r, dict) and r.get("judge_winner") == "B")
+
+    if wins_a == 0 and wins_b == 0:
+        return None
+    if wins_a > wins_b:
+        return "A"
+    if wins_b > wins_a:
+        return "B"
+    return "Tied"
+
+
+
 
 
 
