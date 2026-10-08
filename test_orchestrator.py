@@ -33,6 +33,7 @@ from orchestrator import (
     calculate_speaking_pace,
     get_longest_speech,
     get_head_to_head_record,
+    count_unique_topics,
 )
 
 if sys.platform == "win32":
@@ -1312,6 +1313,43 @@ def test_get_head_to_head_record():
                 pass
 
 
+def test_count_unique_topics():
+    print("=== TEST 43: Count Unique Topics Utility ===")
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+
+    try:
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump([], f)
+        assert count_unique_topics() == 0
+
+        records = [
+            {"id": "1", "topic": "AI should be regulated"},
+            {"id": "2", "topic": "AI should be regulated"},
+            {"id": "3", "topic": "Social media harms democracy"},
+            {"id": "4", "topic": "Nuclear energy is safe"},
+        ]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(records, f)
+        count = count_unique_topics()
+        assert count == 3
+
+        print("✓ Confirmed: count_unique_topics correctly identifies distinct debate topics.")
+        print("=== TEST 43 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -1354,6 +1392,7 @@ if __name__ == "__main__":
     test_calculate_speaking_pace()
     test_get_longest_speech()
     test_get_head_to_head_record()
+    test_count_unique_topics()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
