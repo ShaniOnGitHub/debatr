@@ -1234,6 +1234,58 @@ def get_longest_speech(transcript: List[Dict[str, Any]]) -> Optional[Dict[str, A
     return longest_entry
 
 
+def get_head_to_head_record() -> Dict[str, Any]:
+    """
+    Tallies wins between Debater A (supporting side) and Debater B (opposing side)
+    across recorded debates.
+    Returns a summary dictionary containing win counts, ties, total finished debates,
+    and the current leader ('A', 'B', 'Tied', or 'None').
+    """
+    history_file = get_history_file()
+    history = []
+    if os.path.exists(history_file):
+        try:
+            with open(history_file, "r", encoding="utf-8") as f:
+                loaded = json.load(f)
+                if isinstance(loaded, list):
+                    history = loaded
+        except Exception:
+            history = []
+
+    wins_a = 0
+    wins_b = 0
+    ties = 0
+    for record in history:
+        if not isinstance(record, dict):
+            continue
+        winner = record.get("judge_winner")
+        if winner == "A":
+            wins_a += 1
+        elif winner == "B":
+            wins_b += 1
+        elif winner:
+            ties += 1
+
+    total = wins_a + wins_b + ties
+    if total == 0:
+        leader = "None"
+    elif wins_a > wins_b:
+        leader = "A"
+    elif wins_b > wins_a:
+        leader = "B"
+    else:
+        leader = "Tied"
+
+    return {
+        "wins_a": wins_a,
+        "wins_b": wins_b,
+        "ties": ties,
+        "total": total,
+        "leader": leader,
+    }
+
+
+
 
 
 
