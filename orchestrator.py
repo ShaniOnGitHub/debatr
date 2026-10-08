@@ -27,7 +27,7 @@ def load_dotenv():
 
 load_dotenv()
 
-__version__ = "1.5.0"
+__version__ = "1.6.0"
 DEFAULT_MODEL = "stealth/union-alpha"
 DEFAULT_HISTORY_FILE = os.path.join(os.path.dirname(__file__), "debates_history.json")
 MAX_ROUNDS = 10
