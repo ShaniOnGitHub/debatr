@@ -1194,6 +1194,21 @@ def export_history_csv(output_path: Optional[str] = None) -> str:
     return csv_data
 
 
+def calculate_speaking_pace(word_count: int, duration_seconds: float) -> float:
+    """
+    Calculates speaking speed in words per minute.
+    Words per minute measures how quickly someone speaks during a debate.
+    Returns 0.0 if the duration is zero or negative, or if word count is negative.
+    """
+    if not isinstance(word_count, (int, float)) or not isinstance(duration_seconds, (int, float)):
+        return 0.0
+    if duration_seconds <= 0 or word_count <= 0:
+        return 0.0
+    minutes = duration_seconds / 60.0
+    return round(word_count / minutes, 1)
+
+
+
 
 
 
