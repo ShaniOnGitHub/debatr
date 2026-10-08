@@ -1208,6 +1208,33 @@ def calculate_speaking_pace(word_count: int, duration_seconds: float) -> float:
     return round(word_count / minutes, 1)
 
 
+def get_longest_speech(transcript: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    """
+    Finds the speech turn with the most words in a debate.
+    Returns a dictionary with the speaker, round number, word count, and text,
+    or None if the transcript is empty or invalid.
+    """
+    if not isinstance(transcript, list) or not transcript:
+        return None
+    longest_entry = None
+    max_words = -1
+    for entry in transcript:
+        if not isinstance(entry, dict):
+            continue
+        text = str(entry.get("text", "")).strip()
+        word_count = len(text.split())
+        if word_count > max_words:
+            max_words = word_count
+            longest_entry = {
+                "speaker": entry.get("speaker", "A"),
+                "round": entry.get("round", 1),
+                "word_count": word_count,
+                "text": text,
+            }
+    return longest_entry
+
+
+
 
 
 
