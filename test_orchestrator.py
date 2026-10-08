@@ -32,6 +32,7 @@ from orchestrator import (
     register_preset_topic,
     calculate_speaking_pace,
     get_longest_speech,
+    get_head_to_head_record,
 )
 
 if sys.platform == "win32":
@@ -1259,6 +1260,58 @@ def test_get_longest_speech():
     print("=== TEST 41 PASSED ===\n")
 
 
+def test_get_head_to_head_record():
+    print("=== TEST 42: Get Head To Head Record Utility ===")
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as tf:
+        temp_path = tf.name
+    orig_env = os.environ.get("DEBATR_HISTORY_FILE")
+    os.environ["DEBATR_HISTORY_FILE"] = temp_path
+
+    try:
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump([], f)
+        empty_rec = get_head_to_head_record()
+        assert empty_rec["total"] == 0
+        assert empty_rec["wins_a"] == 0
+        assert empty_rec["wins_b"] == 0
+        assert empty_rec["leader"] == "None"
+
+        sample_data = [
+            {"id": "1", "judge_winner": "A"},
+            {"id": "2", "judge_winner": "A"},
+            {"id": "3", "judge_winner": "B"},
+        ]
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(sample_data, f)
+        lead_rec = get_head_to_head_record()
+        assert lead_rec["total"] == 3
+        assert lead_rec["wins_a"] == 2
+        assert lead_rec["wins_b"] == 1
+        assert lead_rec["leader"] == "A"
+
+        sample_data.append({"id": "4", "judge_winner": "B"})
+        with open(temp_path, "w", encoding="utf-8") as f:
+            json.dump(sample_data, f)
+        tied_rec = get_head_to_head_record()
+        assert tied_rec["total"] == 4
+        assert tied_rec["wins_a"] == 2
+        assert tied_rec["wins_b"] == 2
+        assert tied_rec["leader"] == "Tied"
+
+        print("✓ Confirmed: get_head_to_head_record correctly tallies win records and determines leader.")
+        print("=== TEST 42 PASSED ===\n")
+    finally:
+        if orig_env is not None:
+            os.environ["DEBATR_HISTORY_FILE"] = orig_env
+        else:
+            os.environ.pop("DEBATR_HISTORY_FILE", None)
+        if os.path.exists(temp_path):
+            try:
+                os.remove(temp_path)
+            except Exception:
+                pass
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -1300,6 +1353,7 @@ if __name__ == "__main__":
     test_register_preset_topic()
     test_calculate_speaking_pace()
     test_get_longest_speech()
+    test_get_head_to_head_record()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
