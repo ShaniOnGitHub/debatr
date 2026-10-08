@@ -14,7 +14,8 @@
 - **Flexible Export Options**: Download debate transcripts as formatted Markdown (`.md`), structured JSON (`.json`), styled HTML (`.html`), tabular CSV (`.csv`), or plain text. Export full history with `export_history_csv()`.
 - **Topic Presets & Custom Topics**: Choose from curated debate prompts across Technology, Society, and Science, search presets with `search_preset_topics()`, or register custom topics with `register_preset_topic()`.
 - **Debate History Management**: Search debates by keyword, filter by winner or date range, prune old records with `prune_history()`, and create backups with `backup_history()`.
-- **Speech Metrics & Readability**: Compute lexical diversity, estimate tokens, and evaluate language accessibility using `calculate_readability_score()`.
+- **Speech Metrics & Readability**: Compute lexical diversity, estimate tokens, evaluate language accessibility using `calculate_readability_score()`, and measure speaking speed with `calculate_speaking_pace()`.
+- **Advanced Debate Analytics**: Identify the most detailed speech turn with `get_longest_speech()`, compare cumulative win totals with `get_head_to_head_record()`, count distinct topics debated with `count_unique_topics()`, and find the overall top debater with `get_most_common_winner()`.
 - **Minimal, Modern UI**: Built with Streamlit with an in-page configuration panel, preset topics, and a live statistics banner.
 
 ---
