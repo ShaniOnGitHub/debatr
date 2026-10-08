@@ -31,6 +31,7 @@ from orchestrator import (
     export_history_csv,
     register_preset_topic,
     calculate_speaking_pace,
+    get_longest_speech,
 )
 
 if sys.platform == "win32":
@@ -1237,6 +1238,27 @@ def test_calculate_speaking_pace():
     print("=== TEST 40 PASSED ===\n")
 
 
+def test_get_longest_speech():
+    print("=== TEST 41: Get Longest Speech Utility ===")
+    assert get_longest_speech([]) is None
+    assert get_longest_speech(None) is None
+    assert get_longest_speech("not a list") is None
+
+    transcript = [
+        {"speaker": "A", "round": 1, "text": "This is a brief opening remark."},
+        {"speaker": "B", "round": 1, "text": "This is a substantially longer rebuttal that contains far more detailed points."},
+        {"speaker": "A", "round": 2, "text": "Short close."},
+    ]
+    longest = get_longest_speech(transcript)
+    assert longest is not None
+    assert longest["speaker"] == "B"
+    assert longest["round"] == 1
+    assert longest["word_count"] == 12
+
+    print("✓ Confirmed: get_longest_speech accurately identifies the turn with the most words.")
+    print("=== TEST 41 PASSED ===\n")
+
+
 if __name__ == "__main__":
     test_mock_vote_reveal_ordering()
     test_history_stats_structure()
@@ -1277,6 +1299,7 @@ if __name__ == "__main__":
     test_export_history_csv()
     test_register_preset_topic()
     test_calculate_speaking_pace()
+    test_get_longest_speech()
     
     run_live = "--live" in sys.argv or os.environ.get("RUN_LIVE_TESTS") == "1"
     if run_live:
