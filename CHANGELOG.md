@@ -4,6 +4,18 @@ All notable changes to the Debatr project are documented in this file.
 
 ---
 
+## [1.6.0] - 2026-10-08
+
+### Added
+- **Speaking Pace Metric**: Added `calculate_speaking_pace()` to measure how many words per minute a debater produced during their allotted time.
+- **Longest Speech Finder**: Added `get_longest_speech()` to identify the debate turn with the highest word count across a full transcript.
+- **Head-to-Head Win Record**: Added `get_head_to_head_record()` to compare cumulative win totals between Debater A and Debater B across all history.
+- **Unique Topic Counter**: Added `count_unique_topics()` to tally how many distinct debate topics have been recorded in history.
+- **Dominant Winner Lookup**: Added `get_most_common_winner()` to quickly identify which side has won the most debates overall.
+- **Expanded Test Suite**: Added 5 comprehensive unit tests, bringing automated test coverage to 44 verified test scenarios.
+
+---
+
 ## [1.5.0] - 2026-10-04
 
 ### Added
