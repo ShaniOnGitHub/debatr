@@ -110,6 +110,8 @@ Continuous integration runs automatically on every push and pull request via Git
 
 Contributions are warmly welcomed! Please read our [Contributing Guidelines](CONTRIBUTING.md) to learn how to get started.
 
+If you run into a bug or have a feature idea, open an issue on GitHub before starting work so we can align on scope and approach.
+
 ---
 
 ## 📄 License
