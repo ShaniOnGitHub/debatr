@@ -4,6 +4,14 @@ All notable changes to the Debatr project are documented in this file.
 
 ---
 
+## [1.7.0] - 2026-10-12
+
+### Added
+- **Debate Summary Stats**: `get_debate_summary()` returns a compact dictionary with topic, round count, winner, and judge scores for quick programmatic access.
+- **Improved Contributing Docs**: Clarified pull request workflow and added a Questions section to CONTRIBUTING.md.
+
+---
+
 ## [1.6.0] - 2026-10-08
 
 ### Added
