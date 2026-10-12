@@ -67,3 +67,9 @@ Please follow these guidelines:
 2. Commit your changes with clear, descriptive commit messages.
 3. Push to your branch: `git push origin feature/my-new-feature`
 4. Open a Pull Request on GitHub describing what your change does.
+
+---
+
+## 💬 Questions?
+
+If you are unsure about anything, open a GitHub Discussion or drop a comment on the relevant issue. We are happy to help you get started.
