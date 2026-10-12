@@ -1341,6 +1341,29 @@ def get_most_common_winner() -> Optional[str]:
     return "Tied"
 
 
+def get_debate_summary(debate_id: str) -> Optional[Dict[str, Any]]:
+    """
+    Returns a compact summary dictionary for a single debate record identified by debate_id.
+    Includes topic, round count, user vote, judge winner, and judge scores.
+    Returns None if the record is not found.
+    """
+    record = get_debate_by_id(debate_id)
+    if record is None:
+        return None
+    return {
+        "id": record.get("id"),
+        "topic": record.get("topic"),
+        "rounds": record.get("rounds"),
+        "user_vote": record.get("user_vote"),
+        "judge_winner": record.get("judge_winner"),
+        "score_a": record.get("score_a"),
+        "score_b": record.get("score_b"),
+        "timestamp": record.get("timestamp"),
+    }
+
+
+
+
 
 
 
