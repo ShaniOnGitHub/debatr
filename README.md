@@ -102,6 +102,11 @@ Debatr includes an automated test suite verifying turn execution, verdict privac
   python test_orchestrator.py --live
   ```
 
+- **Run the JavaScript SDK tests:**
+  ```bash
+  node test_union.js
+  ```
+
 Continuous integration runs automatically on every push and pull request via GitHub Actions.
 
 ---
