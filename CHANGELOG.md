@@ -110,3 +110,4 @@ All notable changes to the Debatr project are documented in this file.
 - Vote and reveal mechanism holding judge verdict confidential until user votes.
 - Streamlit interactive interface with real-time speech streaming.
 
+
