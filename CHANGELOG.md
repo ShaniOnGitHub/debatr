@@ -109,3 +109,4 @@ All notable changes to the Debatr project are documented in this file.
 - Impartial silent AI judge evaluating consistency, evidence, and rebuttal engagement.
 - Vote and reveal mechanism holding judge verdict confidential until user votes.
 - Streamlit interactive interface with real-time speech streaming.
+
